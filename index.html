@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anamara Labs — Technology that helps humans change</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --wine-950:#2C0F1A;
+    --wine-900:#3B1420;
+    --wine-800:#4E1C2C;
+    --wine-700:#6B2A3B;
+    --rose-400:#C98A94;
+    --rose-300:#DBA9AF;
+    --coral-500:#C9647A;
+    --coral-600:#B0526A;
+    --cream-50:#FBF6F1;
+    --cream-100:#F5EBE3;
+    --blush-100:#F1DFDA;
+    --blush-200:#E9CFC9;
+    --ink:#2A1620;
+    --ink-soft:#5B4048;
+    --line:rgba(42,22,32,0.12);
+    --line-dark:rgba(251,246,241,0.16);
+    --cream-text:#F3E4DD;
+    --cream-text-soft:#D8B9BE;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Inter',sans-serif;
+    background:var(--cream-50);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  .serif{font-family:'Fraunces',serif;}
+  .container{
+    max-width:1160px;
+    margin:0 auto;
+    padding:0 32px;
+  }
+  section{position:relative;}
+  @media(max-width:640px){.container{padding:0 22px;}}
+
+  /* ---------- reveal ---------- */
+  .reveal{opacity:0;transform:translateY(28px);transition:opacity 0.9s cubic-bezier(.16,.8,.24,1),transform 0.9s cubic-bezier(.16,.8,.24,1);}
+  .reveal.in{opacity:1;transform:translateY(0);}
+  .reveal-d1{transition-delay:.08s;}
+  .reveal-d2{transition-delay:.16s;}
+  .reveal-d3{transition-delay:.24s;}
+  .reveal-d4{transition-delay:.32s;}
+
+  /* ---------- nav ---------- */
+  nav{
+    position:fixed;top:0;left:0;right:0;z-index:100;
+    padding:22px 32px;
+    display:flex;align-items:center;justify-content:space-between;
+    mix-blend-mode:difference;
+  }
+  nav .word{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-size:16px;
+    letter-spacing:0.04em;
+    color:#fff;
+  }
+  nav .links{display:flex;gap:34px;}
+  nav .links a{
+    color:#fff;text-decoration:none;font-size:13px;letter-spacing:.03em;
+    opacity:0.82;transition:opacity .3s ease;
+  }
+  nav .links a:hover{opacity:1;}
+  @media(max-width:640px){nav .links{display:none;}}
+
+  /* ---------- hero ---------- */
+  .hero{
+    min-height:100vh;
+    background:radial-gradient(ellipse 120% 90% at 50% 0%, var(--wine-800) 0%, var(--wine-950) 62%);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;position:relative;overflow:hidden;
+    padding:140px 32px 100px;
+  }
+  .breath{
+    position:absolute;
+    width:640px;height:640px;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(201,138,148,0.38) 0%, rgba(201,100,122,0.16) 42%, rgba(201,100,122,0) 72%);
+    top:50%;left:50%;
+    transform:translate(-50%,-50%) scale(1);
+    animation:breathe 7s ease-in-out infinite;
+    filter:blur(2px);
+    pointer-events:none;
+  }
+  @keyframes breathe{
+    0%,100%{transform:translate(-50%,-50%) scale(0.86);opacity:0.75;}
+    50%{transform:translate(-50%,-50%) scale(1.08);opacity:1;}
+  }
+  .hero-eyebrow{
+    color:var(--rose-300);
+    font-size:12.5px;letter-spacing:0.22em;text-transform:uppercase;
+    margin-bottom:26px;position:relative;z-index:2;
+    font-weight:500;
+  }
+  .hero h1{
+    position:relative;z-index:2;
+    font-family:'Fraunces',serif;
+    font-weight:400;
+    font-size:clamp(2.4rem,6.4vw,5.1rem);
+    line-height:1.06;
+    color:var(--cream-text);
+    max-width:920px;
+    letter-spacing:-0.01em;
+  }
+  .hero h1 em{
+    font-style:italic;font-weight:400;
+    color:var(--rose-300);
+  }
+  .hero p.sub{
+    position:relative;z-index:2;
+    margin-top:28px;
+    font-size:clamp(1rem,1.6vw,1.25rem);
+    color:var(--cream-text-soft);
+    max-width:560px;
+    font-weight:300;
+    line-height:1.55;
+  }
+  .hero-form{
+    position:relative;z-index:2;
+    margin-top:44px;
+    display:flex;
+    gap:10px;
+    width:100%;
+    max-width:440px;
+  }
+  .hero-form input[type="email"]{
+    flex:1;
+    background:rgba(251,246,241,0.08);
+    border:1px solid var(--line-dark);
+    border-radius:30px;
+    padding:15px 22px;
+    font-family:'Inter',sans-serif;
+    font-size:14.5px;
+    color:var(--cream-text);
+    outline:none;
+    transition:border-color .3s ease, background .3s ease;
+  }
+  .hero-form input[type="email"]::placeholder{color:var(--cream-text-soft);opacity:0.65;}
+  .hero-form input[type="email"]:focus{border-color:var(--rose-400);background:rgba(251,246,241,0.13);}
+  .hero-form button{
+    flex-shrink:0;
+    background:var(--coral-500);
+    color:#fff;
+    border:none;
+    border-radius:30px;
+    padding:15px 26px;
+    font-family:'Inter',sans-serif;
+    font-size:14.5px;
+    font-weight:500;
+    cursor:pointer;
+    transition:background .3s ease, transform .2s ease;
+  }
+  .hero-form button:hover{background:var(--coral-600);transform:translateY(-1px);}
+  .hero-form button:disabled{opacity:0.6;cursor:default;transform:none;}
+  .hero-note{
+    position:relative;z-index:2;
+    margin-top:16px;
+    font-size:12.5px;
+    color:var(--cream-text-soft);
+    opacity:0.75;
+    min-height:16px;
+  }
+  .hero-note.error{color:var(--rose-300);opacity:1;}
+  .hero-note.success{color:var(--rose-300);opacity:1;}
+  @media(max-width:520px){
+    .hero-form{flex-direction:column;max-width:340px;}
+    .hero-form button{width:100%;}
+  }
+
+  .hero .scrollcue{
+    position:absolute;bottom:40px;left:50%;transform:translateX(-50%);
+    display:flex;flex-direction:column;align-items:center;gap:10px;
+    color:var(--cream-text-soft);font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+    z-index:2;
+  }
+  .scrollcue .line{width:1px;height:38px;background:linear-gradient(to bottom, var(--rose-300), transparent);animation:pulseline 2.4s ease-in-out infinite;}
+  @keyframes pulseline{0%,100%{opacity:.35;}50%{opacity:1;}}
+
+  /* ---------- eyebrow / heading pattern ---------- */
+  .eyebrow{
+    font-size:12.5px;letter-spacing:.2em;text-transform:uppercase;
+    font-weight:500;color:var(--coral-600);
+    margin-bottom:18px;
+    display:flex;align-items:center;gap:12px;
+  }
+  .eyebrow::before{content:'';width:26px;height:1px;background:var(--coral-600);display:inline-block;}
+  .eyebrow.on-dark{color:var(--rose-300);}
+  .eyebrow.on-dark::before{background:var(--rose-300);}
+
+  h2.headline{
+    font-family:'Fraunces',serif;
+    font-weight:400;
+    font-size:clamp(1.9rem,3.6vw,3rem);
+    line-height:1.14;
+    letter-spacing:-0.01em;
+    max-width:760px;
+  }
+
+  /* ---------- problem section ---------- */
+  .problem{background:var(--cream-50);padding:150px 0 130px;}
+  .problem-grid{
+    margin-top:64px;
+    display:grid;grid-template-columns:1fr 1fr;gap:64px;
+  }
+  @media(max-width:800px){.problem-grid{grid-template-columns:1fr;gap:44px;}}
+  .col-label{
+    font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--ink-soft);margin-bottom:20px;font-weight:500;
+  }
+  .list-plain{list-style:none;}
+  .list-plain li{
+    padding:14px 0;
+    border-bottom:1px solid var(--line);
+    font-size:16px;
+    color:var(--ink);
+  }
+  .list-plain li:first-child{padding-top:0;}
+  .list-access li{color:var(--ink-soft);}
+  .list-pattern li{font-weight:500;}
+  .problem-close{
+    margin-top:70px;
+    font-family:'Fraunces',serif;
+    font-style:italic;
+    font-weight:400;
+    font-size:clamp(1.3rem,2.4vw,1.8rem);
+    color:var(--wine-800);
+    max-width:760px;
+    line-height:1.4;
+  }
+
+  /* ---------- insight / loop ---------- */
+  .insight{
+    background:linear-gradient(180deg, var(--wine-950) 0%, var(--wine-900) 100%);
+    color:var(--cream-text);
+    padding:150px 0 140px;
+  }
+  .insight .headline{color:var(--cream-text);}
+  .insight-body{
+    max-width:600px;margin-top:26px;
+    color:var(--cream-text-soft);
+    font-size:17px;line-height:1.7;font-weight:300;
+  }
+  .loop-wrap{
+    margin-top:110px;
+    display:flex;flex-direction:column;align-items:center;
+  }
+  .loop-diagram{
+    position:relative;
+    width:100%;
+    max-width:900px;
+    display:flex;justify-content:space-between;align-items:flex-start;
+    gap:8px;
+  }
+  .loop-track{
+    position:absolute;
+    top:15px;left:5%;right:5%;
+    height:1px;
+    background:linear-gradient(90deg, transparent, var(--rose-400) 8%, var(--rose-400) 92%, transparent);
+  }
+  .loop-node{
+    position:relative;z-index:2;
+    display:flex;flex-direction:column;align-items:center;
+    flex:1;text-align:center;
+  }
+  .loop-dot{
+    width:31px;height:31px;border-radius:50%;
+    background:var(--wine-900);
+    border:1px solid var(--rose-400);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Fraunces',serif;font-size:13px;color:var(--rose-300);
+    margin-bottom:22px;
+    transition:transform .4s ease, background .4s ease;
+  }
+  .loop-node:hover .loop-dot{transform:scale(1.18);background:var(--coral-600);color:#fff;border-color:var(--coral-600);}
+  .loop-node span{
+    font-size:13.5px;letter-spacing:.02em;color:var(--cream-text-soft);
+    max-width:110px;line-height:1.4;
+  }
+  @media(max-width:760px){
+    .loop-diagram{flex-wrap:wrap;gap:36px 12px;}
+    .loop-track{display:none;}
+    .loop-node{flex:0 0 40%;}
+  }
+  .loop-caption{
+    margin-top:56px;
+    font-family:'Fraunces',serif;font-style:italic;font-size:16px;
+    color:var(--rose-300);
+  }
+
+  /* ---------- solution ---------- */
+  .solution{background:var(--cream-50);padding:150px 0 130px;}
+  .solution-body{max-width:640px;margin-top:26px;font-size:17px;line-height:1.7;color:var(--ink-soft);}
+  .pill-row{
+    margin-top:52px;
+    display:flex;flex-wrap:wrap;gap:12px;
+    max-width:820px;
+  }
+  .pill{
+    padding:11px 22px;
+    border:1px solid var(--line);
+    border-radius:30px;
+    font-size:14px;
+    color:var(--wine-800);
+    background:var(--blush-100);
+    transition:background .3s ease, transform .3s ease;
+  }
+  .pill:hover{background:var(--coral-500);color:#fff;transform:translateY(-2px);}
+  .solution-tag{
+    margin-top:58px;
+    font-family:'Fraunces',serif;font-style:italic;
+    font-size:clamp(1.2rem,2vw,1.5rem);
+    color:var(--wine-800);
+    max-width:600px;line-height:1.4;
+  }
+
+  /* ---------- how it works ---------- */
+  .how{background:var(--blush-100);padding:150px 0 140px;}
+  .how-list{margin-top:80px;}
+  .how-item{
+    display:grid;grid-template-columns:110px 1fr;gap:30px;
+    padding:44px 0;
+    border-top:1px solid var(--line);
+  }
+  .how-item:last-child{border-bottom:1px solid var(--line);}
+  .how-num{
+    font-family:'Fraunces',serif;font-size:15px;font-style:italic;color:var(--rose-400);
+    padding-top:4px;
+  }
+  .how-content h3{
+    font-family:'Fraunces',serif;font-weight:500;font-size:22px;color:var(--wine-800);
+    margin-bottom:10px;
+  }
+  .how-content p{font-size:15.5px;color:var(--ink-soft);line-height:1.65;max-width:560px;}
+  .how-quote{
+    display:inline-block;margin-top:14px;
+    font-family:'Fraunces',serif;font-style:italic;font-size:15px;
+    color:var(--wine-700);
+    padding:10px 18px;
+    border-left:2px solid var(--coral-500);
+    background:rgba(255,255,255,0.5);
+  }
+  @media(max-width:640px){.how-item{grid-template-columns:1fr;gap:10px;}}
+
+  /* ---------- wedge ---------- */
+  .wedge{
+    background:linear-gradient(180deg, var(--wine-900) 0%, var(--wine-950) 100%);
+    color:var(--cream-text);
+    padding:150px 0 130px;
+  }
+  .wedge .headline{color:var(--cream-text);max-width:820px;}
+  .wedge-body{max-width:600px;margin-top:26px;color:var(--cream-text-soft);font-size:17px;line-height:1.7;font-weight:300;}
+  .chip-row{margin-top:52px;display:flex;flex-wrap:wrap;gap:12px;max-width:840px;}
+  .chip{
+    padding:10px 20px;border-radius:30px;
+    border:1px solid var(--line-dark);
+    color:var(--rose-300);font-size:13.5px;
+  }
+  .wedge-expand{
+    margin-top:64px;
+    font-family:'Fraunces',serif;font-size:clamp(1.2rem,2.2vw,1.6rem);font-weight:400;
+    color:var(--cream-text);max-width:760px;line-height:1.45;
+  }
+  .wedge-expand b{color:var(--rose-300);font-weight:500;font-style:italic;}
+
+  /* ---------- why different ---------- */
+  .why{background:var(--cream-50);padding:150px 0 130px;}
+  .why-grid{margin-top:64px;display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);}
+  .why-card{background:var(--cream-50);padding:36px 26px;}
+  .why-card h4{font-family:'Fraunces',serif;font-weight:500;font-size:18px;color:var(--wine-800);margin-bottom:10px;}
+  .why-card p{font-size:14px;color:var(--ink-soft);line-height:1.6;}
+  @media(max-width:900px){.why-grid{grid-template-columns:1fr 1fr;}}
+  @media(max-width:560px){.why-grid{grid-template-columns:1fr;}}
+  .why-close{
+    margin-top:64px;
+    font-family:'Fraunces',serif;font-style:italic;font-weight:400;
+    font-size:clamp(1.3rem,2.4vw,1.8rem);
+    color:var(--wine-800);max-width:760px;line-height:1.4;
+  }
+
+  /* ---------- founder ---------- */
+  .founder{background:var(--wine-950);color:var(--cream-text);padding:150px 0 140px;}
+  .founder-grid{margin-top:70px;display:grid;grid-template-columns:0.85fr 1.15fr;gap:80px;}
+  @media(max-width:860px){.founder-grid{grid-template-columns:1fr;gap:50px;}}
+  .founder-name{font-family:'Fraunces',serif;font-size:clamp(2.1rem,4vw,3.1rem);font-weight:400;color:var(--cream-text);}
+  .founder-role{margin-top:10px;color:var(--rose-300);font-size:14px;letter-spacing:.06em;text-transform:uppercase;}
+  .founder-quote{
+    margin-top:38px;
+    font-family:'Fraunces',serif;font-style:italic;font-size:19px;
+    color:var(--rose-300);line-height:1.5;
+    border-left:2px solid var(--coral-500);padding-left:22px;
+  }
+  .founder-bio p{font-size:16px;line-height:1.75;color:var(--cream-text-soft);font-weight:300;margin-bottom:22px;}
+  .timeline{margin-top:36px;}
+  .timeline-row{
+    display:grid;grid-template-columns:130px 1fr;gap:22px;
+    padding:20px 0;border-top:1px solid var(--line-dark);
+  }
+  .timeline-row:last-child{border-bottom:1px solid var(--line-dark);}
+  .timeline-row .yr{font-family:'Fraunces',serif;font-style:italic;color:var(--rose-300);font-size:14px;padding-top:1px;}
+  .timeline-row .desc{font-size:14.5px;color:var(--cream-text-soft);line-height:1.6;}
+  .timeline-row .desc b{color:var(--cream-text);font-weight:500;}
+  .founder-note{
+    margin-top:36px;font-size:14px;color:var(--cream-text-soft);
+    font-style:italic;opacity:0.85;
+  }
+
+  /* ---------- vision close ---------- */
+  .vision{background:var(--cream-50);padding:170px 0 150px;text-align:center;}
+  .vision blockquote{
+    font-family:'Fraunces',serif;font-weight:400;font-style:italic;
+    font-size:clamp(1.8rem,4.2vw,3.1rem);
+    line-height:1.28;color:var(--wine-800);
+    max-width:840px;margin:0 auto;
+  }
+  .vision .sub{
+    margin-top:36px;font-size:16px;color:var(--ink-soft);max-width:560px;margin-left:auto;margin-right:auto;line-height:1.7;
+  }
+
+  /* ---------- footer ---------- */
+  footer{
+    background:var(--wine-950);color:var(--cream-text-soft);
+    padding:60px 0 44px;
+  }
+  .footer-row{
+    display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;
+    border-top:1px solid var(--line-dark);padding-top:36px;
+  }
+  footer .word{font-family:'Fraunces',serif;color:var(--cream-text);font-size:15px;}
+  footer a{color:var(--rose-300);text-decoration:none;font-size:14px;}
+  footer .tag{font-size:13px;opacity:.7;max-width:340px;line-height:1.6;}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="word">Anamara Labs</div>
+  <div class="links">
+    <a href="#problem">Problem</a>
+    <a href="#solution">MindFlow</a>
+    <a href="#wedge">Who it's for</a>
+    <a href="#founder">Founder</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="breath"></div>
+  <div class="hero-eyebrow">Anamara Labs</div>
+  <h1>Technology that helps humans <em>change.</em></h1>
+  <p class="sub">AI-powered emotional transformation for the moments when insight isn't enough.</p>
+
+  <form class="hero-form" id="waitlist-form" novalidate>
+    <input type="email" id="waitlist-email" placeholder="your@email.com" autocomplete="email">
+    <button type="submit" id="waitlist-btn">Join the waitlist</button>
+  </form>
+  <p class="hero-note" id="waitlist-note">Be first to try MindFlow. No spam, ever.</p>
+
+  <div class="scrollcue"><span>Scroll</span><span class="line"></span></div>
+</section>
+
+<section class="problem" id="problem">
+  <div class="container">
+    <div class="eyebrow reveal">The Problem</div>
+    <h2 class="headline reveal">People know what to do.<br>They still can't do it.</h2>
+
+    <div class="problem-grid">
+      <div class="reveal reveal-d1">
+        <div class="col-label">More access than ever to</div>
+        <ul class="list-plain list-access">
+          <li>Therapy</li>
+          <li>Self-help content</li>
+          <li>Meditation apps</li>
+          <li>Mental health apps</li>
+          <li>AI tools</li>
+          <li>Podcasts</li>
+          <li>Coaching</li>
+          <li>Behavioral science</li>
+        </ul>
+      </div>
+      <div class="reveal reveal-d2">
+        <div class="col-label">Yet people still</div>
+        <ul class="list-plain list-pattern">
+          <li>Procrastinate</li>
+          <li>Spiral emotionally</li>
+          <li>Stay in unhealthy relationships</li>
+          <li>Avoid hard conversations</li>
+          <li>Numb through scrolling, drinking, overeating, overworking</li>
+          <li>Understand patterns — without changing them</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="problem-close reveal">The problem is no longer access to information. It's turning insight into lasting change.</p>
+  </div>
+</section>
+
+<section class="insight">
+  <div class="container">
+    <div class="eyebrow on-dark reveal">The Core Insight</div>
+    <h2 class="headline reveal">Insight doesn't create change.<br>Repetition does.</h2>
+    <p class="insight-body reveal reveal-d1">Most emotional-health products help people learn, track, talk, or calm down temporarily. But knowing what to do is different from being able to do it when emotion takes over. Our thesis: lasting change happens when people repeatedly practice a healthier emotional response in the moments that matter.</p>
+
+    <div class="loop-wrap reveal reveal-d2">
+      <div class="loop-diagram">
+        <div class="loop-track"></div>
+        <div class="loop-node"><div class="loop-dot">1</div><span>Trigger</span></div>
+        <div class="loop-node"><div class="loop-dot">2</div><span>Regulation</span></div>
+        <div class="loop-node"><div class="loop-dot">3</div><span>New response</span></div>
+        <div class="loop-node"><div class="loop-dot">4</div><span>New behavior</span></div>
+        <div class="loop-node"><div class="loop-dot">5</div><span>Reinforcement</span></div>
+      </div>
+      <p class="loop-caption">until healthier responses become increasingly automatic</p>
+    </div>
+  </div>
+</section>
+
+<section class="solution" id="solution">
+  <div class="container">
+    <div class="eyebrow reveal">The Solution</div>
+    <h2 class="headline reveal">Meet MindFlow</h2>
+    <p class="solution-body reveal reveal-d1">The first product from Anamara Labs — an AI-powered emotional transformation companion that helps people identify what's blocking them, shift their emotional state, and take a healthier next action.</p>
+
+    <div class="pill-row reveal reveal-d2">
+      <div class="pill">Conversational AI</div>
+      <div class="pill">Personalized hypnosis</div>
+      <div class="pill">Ericksonian reframing</div>
+      <div class="pill">Behavioral science</div>
+      <div class="pill">Nervous-system practices</div>
+      <div class="pill">Guided reflection</div>
+      <div class="pill">Real-world exercises</div>
+      <div class="pill">Community reinforcement</div>
+    </div>
+
+    <p class="solution-tag reveal reveal-d3">Not another library of wellness content. A personalized system for practicing change.</p>
+  </div>
+</section>
+
+<section class="how">
+  <div class="container">
+    <div class="eyebrow reveal">How It Works</div>
+    <h2 class="headline reveal">From emotional trigger to healthier behavior</h2>
+
+    <div class="how-list">
+      <div class="how-item reveal">
+        <div class="how-num">01</div>
+        <div class="how-content">
+          <h3>Something happens</h3>
+          <p>A trigger — a text left unanswered, a task avoided for days.</p>
+          <div class="how-quote">"He hasn't replied and I'm spiraling."</div>
+        </div>
+      </div>
+      <div class="how-item reveal">
+        <div class="how-num">02</div>
+        <div class="how-content">
+          <h3>MindFlow understands</h3>
+          <p>What happened, what they feel, the pattern underneath, what they're compelled to do.</p>
+          <div class="how-quote">"I've been avoiding sending this application for three days."</div>
+        </div>
+      </div>
+      <div class="how-item reveal">
+        <div class="how-num">03</div>
+        <div class="how-content">
+          <h3>Selects an intervention</h3>
+          <p>Hypnosis, reframing, grounding, breathing, visualization, or a behavioral prompt — matched to the moment.</p>
+        </div>
+      </div>
+      <div class="how-item reveal">
+        <div class="how-num">04</div>
+        <div class="how-content">
+          <h3>User acts differently</h3>
+          <p>Instead of only feeling better, the user practices a healthier real-world action.</p>
+        </div>
+      </div>
+      <div class="how-item reveal">
+        <div class="how-num">05</div>
+        <div class="how-content">
+          <h3>MindFlow follows up</h3>
+          <p>Did it help? Did the behavior happen? The system learns what works for that person — prevention as much as crisis response.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="wedge" id="wedge">
+  <div class="container">
+    <div class="eyebrow on-dark reveal">Where We Start</div>
+    <h2 class="headline reveal">We start where emotional patterns are impossible to ignore: relationships.</h2>
+    <p class="wedge-body reveal reveal-d1">Our initial user is a high-achieving woman — successful and self-aware in most areas of life, but still struggling with emotional reactivity in dating and relationships. This is a painful, frequent, emotionally urgent problem, and one where our founder already has deep domain knowledge and direct user access.</p>
+
+    <div class="chip-row reveal reveal-d2">
+      <div class="chip">Overthinking texts and interactions</div>
+      <div class="chip">Anxious attachment</div>
+      <div class="chip">Attraction to emotionally unavailable partners</div>
+      <div class="chip">Difficulty tolerating uncertainty</div>
+      <div class="chip">Repeating unhealthy relationship dynamics</div>
+      <div class="chip">Knowing it's wrong, feeling unable to leave</div>
+      <div class="chip">Abandoning boundaries when activated</div>
+    </div>
+
+    <p class="wedge-expand reveal reveal-d3">Relationships are the wedge. The same behavior-change engine expands into <b>anxiety, burnout, procrastination, confidence, leadership, habits, and emotional resilience.</b></p>
+  </div>
+</section>
+
+<section class="why">
+  <div class="container">
+    <div class="eyebrow reveal">Why It's Different</div>
+    <h2 class="headline reveal">The market is crowded. The problem is still unsolved.</h2>
+
+    <div class="why-grid reveal reveal-d1">
+      <div class="why-card">
+        <h4>Meditation platforms</h4>
+        <p>Excellent for content and mindfulness practice at scale.</p>
+      </div>
+      <div class="why-card">
+        <h4>AI mental-health companions</h4>
+        <p>Excellent for conversational support and guided exercises.</p>
+      </div>
+      <div class="why-card">
+        <h4>Digital hypnosis</h4>
+        <p>Excellent for delivering hypnosis at scale.</p>
+      </div>
+      <div class="why-card">
+        <h4>Wearables</h4>
+        <p>Excellent for detecting physiological stress signals.</p>
+      </div>
+    </div>
+
+    <p class="why-close reveal reveal-d2">Everyone helps you understand, detect, talk about, or temporarily regulate your state. We focus on the next step: did you actually respond differently?</p>
+  </div>
+</section>
+
+<section class="founder" id="founder">
+  <div class="container">
+    <div class="eyebrow on-dark reveal">Founder</div>
+    <div class="founder-grid">
+      <div class="reveal">
+        <div class="founder-name">Tamara<br>Stupalova</div>
+        <div class="founder-role">Founder, Anamara Labs</div>
+        <p class="founder-quote">"I am not approaching emotional transformation as an abstract technology problem. I have lived it, studied it, facilitated it — and now want to scale it."</p>
+      </div>
+
+      <div class="founder-bio reveal reveal-d1">
+        <p>My career has centered on understanding human vulnerability and helping people create better outcomes. Before Anamara Labs, I spent nearly a decade in humanitarian crises and international development — using data, research, and coordination to understand vulnerability and improve response.</p>
+        <p>My own personal transformation led me deeper into the science and practice of human change. I trained in integrative hypnosis, behavior change, nervous-system regulation, NLP, relationship coaching, and somatic work. Today I work at the intersection of human behavior, emotional health, and artificial intelligence.</p>
+
+        <div class="timeline">
+          <div class="timeline-row">
+            <div class="yr">~10 years</div>
+            <div class="desc"><b>Humanitarian data & research.</b> UNHCR and international development roles across Lebanon, El Salvador, and the Czech Republic — turning complex human problems into systems that organizations could act on.</div>
+          </div>
+          <div class="timeline-row">
+            <div class="yr">2023 →</div>
+            <div class="desc"><b>Integrative hypnosis, NLP & somatic training.</b> Direct practitioner work with clients navigating emotional patterns, relationships, and behavior change — a real-world laboratory for what actually helps.</div>
+          </div>
+          <div class="timeline-row">
+            <div class="yr">2026 →</div>
+            <div class="desc"><b>Building Anamara Labs.</b> Currently a solo founder, actively seeking a technical or product co-founder to build MindFlow at scale.</div>
+          </div>
+        </div>
+        <p class="founder-note">Not a psychologist, psychiatrist, or licensed clinician — an integrative hypnosis practitioner, coach, and behavioral-technology founder.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="vision">
+  <div class="container">
+    <blockquote class="reveal">Build technology that doesn't just understand humans.<br>Build technology that helps humans change.</blockquote>
+    <p class="sub reveal reveal-d1">Anamara Labs becomes the platform people use to change — helping them build resilience, change unhealthy patterns, and live closer to who they actually want to be.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-row">
+      <div>
+        <div class="word">Anamara Labs</div>
+        <p class="tag" style="margin-top:10px;">Technology that helps humans change.</p>
+      </div>
+      <div style="text-align:right;">
+        <a href="mailto:tamara.stupalova@gmail.com">tamara.stupalova@gmail.com</a>
+        <p class="tag" style="margin-top:10px;">© 2026 Anamara Labs</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // To actually collect signups, set this to a form endpoint (e.g. a Formspree
+  // or ConvertKit form action URL) and the fetch below will POST to it.
+  // Left empty for now — submissions are validated and shown as successful
+  // in the UI but are not being stored anywhere yet.
+  const WAITLIST_ENDPOINT = '';
+
+  const waitlistForm = document.getElementById('waitlist-form');
+  const waitlistEmail = document.getElementById('waitlist-email');
+  const waitlistBtn = document.getElementById('waitlist-btn');
+  const waitlistNote = document.getElementById('waitlist-note');
+
+  function setNote(text, state){
+    waitlistNote.textContent = text;
+    waitlistNote.className = 'hero-note' + (state ? ' ' + state : '');
+  }
+
+  waitlistForm.addEventListener('submit', async function(e){
+    e.preventDefault();
+    const email = waitlistEmail.value.trim();
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if(!email || !emailPattern.test(email)){
+      setNote('Enter a valid email address.', 'error');
+      waitlistEmail.focus();
+      return;
+    }
+
+    waitlistBtn.disabled = true;
+    waitlistBtn.textContent = 'Joining…';
+
+    try{
+      if(WAITLIST_ENDPOINT){
+        await fetch(WAITLIST_ENDPOINT, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({email: email})
+        });
+      }
+      waitlistEmail.value = '';
+      waitlistBtn.textContent = 'Joined';
+      setNote("You're on the list. We'll be in touch.", 'success');
+    }catch(err){
+      waitlistBtn.disabled = false;
+      waitlistBtn.textContent = 'Join the waitlist';
+      setNote("Couldn't submit right now. Try again.", 'error');
+    }
+  });
+
+  waitlistEmail.addEventListener('input', function(){
+    if(waitlistNote.classList.contains('error')){
+      setNote('Be first to try MindFlow. No spam, ever.', '');
+    }
+  });
+
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if(e.isIntersecting){
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+      }
+    });
+  }, {threshold:0.12, rootMargin:'0px 0px -60px 0px'});
+  revealEls.forEach(el => io.observe(el));
+</script>
+
+</body>
+</html>
