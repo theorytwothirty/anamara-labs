@@ -699,11 +699,7 @@
 </footer>
 
 <script>
-  // To actually collect signups, set this to a form endpoint (e.g. a Formspree
-  // or ConvertKit form action URL) and the fetch below will POST to it.
-  // Left empty for now — submissions are validated and shown as successful
-  // in the UI but are not being stored anywhere yet.
-  const WAITLIST_ENDPOINT = '';
+  const WAITLIST_ENDPOINT = 'https://formspree.io/f/xoearekd';
 
   const waitlistForm = document.getElementById('waitlist-form');
   const waitlistEmail = document.getElementById('waitlist-email');
@@ -730,13 +726,16 @@
     waitlistBtn.textContent = 'Joining…';
 
     try{
-      if(WAITLIST_ENDPOINT){
-        await fetch(WAITLIST_ENDPOINT, {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({email: email})
-        });
+      const res = await fetch(WAITLIST_ENDPOINT, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+        body: JSON.stringify({email: email})
+      });
+
+      if(!res.ok){
+        throw new Error('Submission rejected');
       }
+
       waitlistEmail.value = '';
       waitlistBtn.textContent = 'Joined';
       setNote("You're on the list. We'll be in touch.", 'success');
