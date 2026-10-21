@@ -1,0 +1,33 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../gun/kit/web.css"><link rel="stylesheet" href="../app.css">
+<script src="../gun/kit/web.js"></script>
+
+<form id="form" class="card list">
+  <h2>Change password</h2>
+  <label>Current password <input name="old" type="password" required autocomplete="current-password"></label>
+  <label>New password <input name="new" type="password" required minlength="8" maxlength="72" autocomplete="new-password" placeholder="At least 8 characters"></label>
+  <p name="err" class="bad" hidden></p>
+  <p name="saved" class="good" hidden>Password updated</p>
+  <button class="big" name="act">Update password</button>
+</form>
+
+<script src="../gun/kit/dom.js"></script>
+<script src="../env.js"></script>
+<script src="../api.js"></script>
+<script>
+// No body. Clears the form each time settings opens.
+kit.createServer(function(req, res){ form.reset(); res.send(kit.bind(document, {err: null, saved: null})) });
+
+var PASS = {};
+PASS.send = async function(eve, f){ eve.preventDefault();
+  f = Object.fromEntries(new FormData(form));
+  form.act.disabled = true; kit.bind(document, {err: null, saved: null});
+  try{
+    await API.ask('/users/me/change-password', {current_password: f.old, new_password: f.new});
+    form.reset(); kit.bind(document, {saved: {}});
+  }catch(err){ kit.bind(document, {err: err.message}) }
+  form.act.disabled = false;
+};
+form.ear('submit', PASS.send);
+</script>

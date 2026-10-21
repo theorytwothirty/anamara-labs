@@ -1,0 +1,51 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../gun/kit/web.css"><link rel="stylesheet" href="../app.css">
+<script src="../gun/kit/web.js"></script>
+
+<form id="form" class="card list calm">
+  <h2>Session completed</h2>
+  <p class="soft">Great job taking this time for yourself. How effective was this session?</p>
+  <div id="stars" class="line">
+    <button type="button" class="grow star" value="1" aria-label="1 star">★</button>
+    <button type="button" class="grow star" value="2" aria-label="2 stars">★</button>
+    <button type="button" class="grow star" value="3" aria-label="3 stars">★</button>
+    <button type="button" class="grow star" value="4" aria-label="4 stars">★</button>
+    <button type="button" class="grow star" value="5" aria-label="5 stars">★</button>
+  </div>
+  <label>Session notes (optional)
+    <textarea name="note" maxlength="500" placeholder="Any insights or feelings you want to remember?"></textarea>
+  </label>
+  <p name="err" class="bad" hidden></p>
+  <button class="big" name="act">Save and return to library</button>
+</form>
+
+<style>
+.star { flex: 1 1 0; font-size: 1.4em; color: var(--soft); padding: 0.3em; }
+.star.on { color: #fbbf24; border-color: #fbbf24; }
+</style>
+
+<script src="../gun/kit/dom.js"></script>
+<script src="../env.js"></script>
+<script src="../api.js"></script>
+<script src="../nav.js"></script>
+<script>
+// body: {id} of the session that just finished.
+kit.createServer(function(req, res){
+  RATE.id = (req.body || {}).id; form.reset(); RATE.pick(0);
+  res.send(kit.bind(document, {err: null}));
+});
+
+var RATE = {};
+RATE.pick = function(n){ RATE.n = +n; stars.all('button').forEach(function(b){ b.tag('on', +b.value <= RATE.n ? 1 : -1) }) };
+RATE.send = async function(eve){ eve.preventDefault();
+  form.act.disabled = true; kit.bind(document, {err: null});
+  try{
+    await API.ask('/sessions/' + encodeURIComponent(RATE.id) + '/complete', {rating: RATE.n || null, user_notes: form.note.value || null});
+    NAV.go('../shelf.html');
+  }catch(err){ kit.bind(document, {err: err.message}) }
+  form.act.disabled = false;
+};
+stars.all('button').ear('click', function(){ RATE.pick(this.value) });
+form.ear('submit', RATE.send);
+</script>

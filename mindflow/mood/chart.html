@@ -1,0 +1,53 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../gun/kit/web.css"><link rel="stylesheet" href="../app.css">
+<script src="../gun/kit/web.js"></script>
+
+<div class="card list">
+  <h3>Mood trend</h3>
+  <p id="none" class="soft">Log your mood before and after sessions to see trends here.</p>
+  <div id="plot" class="list" hidden>
+    <svg viewBox="0 0 300 120" role="img" aria-label="Average mood per day, before and after sessions">
+      <line x1="0" y1="10" x2="300" y2="10"/><line x1="0" y1="60" x2="300" y2="60"/><line x1="0" y1="110" x2="300" y2="110"/>
+      <polyline id="pre"/><polyline id="post"/>
+    </svg>
+    <div class="line tiny soft"><span name="from" class="grow"></span><span name="to"></span></div>
+    <div class="line tiny"><span class="key pre">Before session</span><span class="key post">After session</span><span class="soft grow">Scale 1-10</span></div>
+  </div>
+</div>
+
+<style>
+svg { width: 100%; height: auto; overflow: visible; }
+line { stroke: var(--line); stroke-dasharray: 3 3; }
+polyline { fill: none; stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+#pre, .key.pre::before { stroke: #818cf8; background: #818cf8; }
+#post, .key.post::before { stroke: #2dd4bf; background: #2dd4bf; }
+.key::before { content: ""; display: inline-block; width: 0.8em; height: 0.8em; margin-right: 0.3em; border-radius: 50%; }
+</style>
+
+<script src="../pen.js"></script>
+<script>
+// body: [{at, kind: 'pre' | 'post', val}]. Plots the daily average of each kind.
+kit.createServer(function(req, res){
+  var days = CHART.days(req.body || []);
+  none.hidden = !!days.length; plot.hidden = !days.length;
+  CHART.line(pre, days, 'pre'); CHART.line(post, days, 'post');
+  res.send(kit.bind(document, {from: days.length ? PEN.day(days[0].at) : '', to: 1 < days.length ? PEN.day(days[days.length - 1].at) : ''}));
+});
+
+var CHART = {};
+CHART.days = function(list, by){
+  by = {};
+  list.filter(function(p){ return 'habit' !== p.kind }).sort(function(a, b){ return new Date(a.at) - new Date(b.at) }).forEach(function(p, k){
+    k = new Date(p.at).toDateString(); by[k] = by[k] || {at: p.at, pre: [], post: []}; by[k][p.kind].push(p.val);
+  });
+  return Object.keys(by).map(function(k){ return by[k] });
+};
+CHART.avg = function(v){ return v.length ? v.reduce(function(a, b){ return a + b }, 0) / v.length : null };
+CHART.line = function(el, days, kind, step){
+  step = 1 < days.length ? 300 / (days.length - 1) : 0;
+  el.setAttribute('points', days.map(function(d, i, v){
+    v = CHART.avg(d[kind]); return null === v ? '' : (1 < days.length ? i * step : 150) + ',' + (110 - (v - 1) / 9 * 100);
+  }).filter(Boolean).join(' '));
+};
+</script>

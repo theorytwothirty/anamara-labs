@@ -1,0 +1,27 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../gun/kit/web.css"><link rel="stylesheet" href="../app.css">
+<script src="../gun/kit/web.js"></script>
+
+<div class="card list">
+  <h2>Your data</h2>
+  <p class="soft">Download a copy of your goals, assessments, sessions, and progress data.</p>
+  <p name="err" class="bad" hidden></p>
+  <button id="get">Export my data</button>
+  <a id="file" download="mindflow_data.json" hidden></a>
+</div>
+
+<script src="../gun/kit/dom.js"></script>
+<script src="../env.js"></script>
+<script src="../api.js"></script>
+<script>
+// No body.
+kit.createServer(function(req, res){ res.send(kit.bind(document, {err: null})) });
+
+get.ear('click', async function(){
+  get.disabled = true; kit.bind(document, {err: null});
+  try{ await API.save(new Blob([JSON.stringify(await API.ask('/users/me/export'), null, 2)], {type: 'application/json'}), file) }
+  catch(err){ kit.bind(document, {err: err.message}) }
+  get.disabled = false;
+});
+</script>

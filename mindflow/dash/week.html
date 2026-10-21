@@ -1,0 +1,39 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../gun/kit/web.css"><link rel="stylesheet" href="../app.css">
+<script src="../gun/kit/web.js"></script>
+
+<a class="card list" href="../mood.html">
+  <h3>This week</h3>
+  <div class="line">
+    <div class="grow"><div name="count" class="num">0</div><div class="soft tiny">Sessions completed</div></div>
+    <div class="grow"><div name="lift" class="num">--</div><div class="soft tiny">Mood change</div></div>
+    <div class="grow"><div name="time" class="num">0m</div><div class="soft tiny">Total time</div></div>
+  </div>
+  <span class="tiny">See all progress</span>
+</a>
+
+<script src="../nav.js"></script>
+<script>
+// body: {sess: [session], sum: summary}. Counts the last 7 days.
+kit.createServer(function(req, res){
+  var b = req.body || {}, from = Date.now() - 7 * 864e5;
+  var sess = (b.sess || []).filter(function(s){ return 'ready' === s.state && from <= new Date(s.made) });
+  res.send(kit.bind(document, {
+    count: sess.length,
+    time: sess.reduce(function(t, s){ return t + s.len }, 0) + 'm',
+    lift: WEEK.lift(((b.sum || {}).trend || []).filter(function(p){ return from <= new Date(p.at) }))
+  }));
+});
+
+var WEEK = {};
+WEEK.avg = function(list, kind, v){
+  v = list.filter(function(p){ return kind === p.kind }).map(function(p){ return p.val });
+  return v.length ? v.reduce(function(a, b){ return a + b }, 0) / v.length : null;
+};
+WEEK.lift = function(list, pre, post, d){
+  pre = WEEK.avg(list, 'pre'); post = WEEK.avg(list, 'post');
+  if(null === pre || null === post){ return '--' }
+  d = post - pre; return (0 <= d ? '+' : '') + d.toFixed(1);
+};
+</script>

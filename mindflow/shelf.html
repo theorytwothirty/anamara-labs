@@ -1,0 +1,71 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Library · MindFlow</title>
+<link rel="stylesheet" href="gun/kit/web.css"><link rel="stylesheet" href="app.css">
+<script src="gun/kit/web.js"></script>
+
+<div class="pad list">
+  <h1>Library</h1>
+  <p class="soft">Your generated hypnosis sessions.</p>
+  <form id="form" class="line">
+    <input name="find" type="search" class="grow" placeholder="Search by title…" aria-label="Search">
+    <select name="state" class="grow" aria-label="Status">
+      <option value="">All statuses</option>
+      <option value="ready">Ready</option>
+      <option value="generating">Generating</option>
+      <option value="pending">Pending</option>
+      <option value="failed">Failed</option>
+    </select>
+  </form>
+  <p name="err" class="bad" hidden></p>
+  <p name="load" class="soft wait" hidden>Loading…</p>
+  <div id="none" class="card list" hidden><p class="soft">No sessions found.</p><a href="new.html">Start a reframe</a></div>
+  <div id="box" class="list"></div>
+</div>
+<template id="row">
+  <div class="card list">
+    <a class="list"><span class="line"><h3 name="title" class="grow"></h3><span name="state" class="tag"></span></span>
+      <span name="when" class="soft tiny"></span><span name="stars" class="tiny"></span></a>
+    <button class="hug tiny">Delete</button>
+  </div>
+</template>
+
+<script src="gun/kit/dom.js"></script>
+<script src="env.js"></script>
+<script src="api.js"></script>
+<script src="fit.js"></script>
+<script src="pen.js"></script>
+<script src="row.js"></script>
+<script src="nav.js"></script>
+<script>
+// No body needed: every show reloads with the current search and status.
+kit.createServer(async function(req, res){ await SHELF.load(); res.send(document) });
+
+var SHELF = {};
+SHELF.load = async function(f, q, list){
+  f = Object.fromEntries(new FormData(form)); q = new URLSearchParams();
+  f.find && q.set('search', f.find); f.state && q.set('status_filter', f.state);
+  kit.bind(document, {err: null, load: {}});
+  try{ list = FIT.list(FIT.sess)(await API.ask('/sessions' + (q + '' ? '?' + q : ''))) }
+  catch(err){ list = []; kit.bind(document, {err: err.message}) }
+  none.hidden = !!list.length;
+  ROW.fill(box, row, list.map(SHELF.item), SHELF.wire);
+  kit.bind(document, {load: null});
+};
+SHELF.item = function(s){
+  return {id: s.id, title: s.title, state: s.state, stars: PEN.star(s.stars) || null, when: PEN.date(s.done || s.made) + ('ready' === s.state ? ' · ' + s.len + ' min' : '')};
+};
+// Delete asks for a second tap instead of a popup.
+SHELF.wire = function(el, s, i, del){
+  el.all('a')[0].href = 'play.html?id=' + encodeURIComponent(s.id);
+  del = el.all('button')[0];
+  del.ear('click', async function(){
+    if(!del.classList.contains('on')){ del.tag('on', 1); del.textContent = 'Tap again to delete'; return }
+    del.disabled = true;
+    try{ await API.ask('/sessions/' + encodeURIComponent(s.id), undefined, 'DELETE'); el.remove(); none.hidden = !!box.children.length }
+    catch(err){ del.disabled = false; kit.bind(document, {err: err.message}) }
+  });
+};
+form.ear('input', function(){ clearTimeout(SHELF.wait); SHELF.wait = setTimeout(SHELF.load, 300) });
+form.ear('submit', function(eve){ eve.preventDefault(); SHELF.load() });
+</script>

@@ -1,0 +1,44 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Home · MindFlow</title>
+<link rel="stylesheet" href="gun/kit/web.css"><link rel="stylesheet" href="app.css">
+<script src="gun/kit/web.js"></script>
+
+<div class="pad list">
+  <h1>Welcome back<span name="name"></span></h1>
+  <p class="soft">Ready to continue your journey?</p>
+  <div class="card list">
+    <h2>Start with a reframe</h2>
+    <p class="soft">Talk through what you're facing and get an Ericksonian reframe, then deepen it with a practice or a personalized hypnosis session.</p>
+    <a class="btn big" href="new.html">Begin now</a>
+  </div>
+  <p name="err" class="bad" hidden></p>
+  <iframe id="week" src="dash/week.html" title="This week"></iframe>
+  <iframe id="goals" src="dash/goal.html" title="Active goals"></iframe>
+  <iframe id="last" src="dash/last.html" title="Recent sessions"></iframe>
+</div>
+
+<script src="env.js"></script>
+<script src="api.js"></script>
+<script src="fit.js"></script>
+<script src="nav.js"></script>
+<script>
+kit.createServer(async function(req, res){
+  var all = await DASH.load();
+  kit.fetch(week, {sess: all.sess, sum: all.sum}).catch(Boolean);
+  kit.fetch(goals, all.goal).catch(Boolean);
+  kit.fetch(last, all.sess).catch(Boolean);
+  res.send(kit.bind(document, {name: all.me ? ', ' + all.me.name : '', err: all.err}));
+});
+
+var DASH = {};
+// Each part loads on its own, so one failing call still leaves the rest of the page useful.
+DASH.part = {me: ['/users/me', FIT.user], goal: ['/goals', FIT.list(FIT.goal)], sess: ['/sessions', FIT.list(FIT.sess)], sum: ['/progress/summary', FIT.sum]};
+DASH.load = async function(all, keys){
+  all = {err: null}; keys = Object.keys(DASH.part);
+  (await Promise.allSettled(keys.map(function(k){ return API.ask(DASH.part[k][0]) }))).forEach(function(r, i){
+    if('fulfilled' === r.status){ all[keys[i]] = DASH.part[keys[i]][1](r.value) } else { all.err = r.reason.message }
+  });
+  return all;
+};
+</script>

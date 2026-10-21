@@ -1,0 +1,38 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../gun/kit/web.css"><link rel="stylesheet" href="../app.css">
+<script src="../gun/kit/web.js"></script>
+
+<form id="form" class="card list">
+  <label>Goal type
+    <input name="kind" required minlength="2" maxlength="50" placeholder="E.g., Relationships, Habit, Career, Confidence…">
+  </label>
+  <label>How will you know you've reached this goal?
+    <textarea name="text" required minlength="10" maxlength="200" placeholder="E.g., I can raise a hard topic with my partner without putting it off for days"></textarea>
+  </label>
+  <span class="soft tiny"><span name="size">0</span>/200 characters (min 10)</span>
+  <label>Target date (optional) <input name="due" type="date"></label>
+  <p name="err" class="bad" hidden></p>
+  <button class="big" name="act">Create goal</button>
+</form>
+
+<script src="../gun/kit/dom.js"></script>
+<script src="../env.js"></script>
+<script src="../api.js"></script>
+<script src="../fit.js"></script>
+<script>
+// No body. Says 'goal' with the new goal once it's saved.
+kit.createServer(function(req, res){ form.reset(); res.send(kit.bind(document, {err: null, size: 0})) });
+
+var ADD = {};
+ADD.send = async function(eve){ eve.preventDefault();
+  form.act.disabled = true; kit.bind(document, {err: null});
+  try{
+    kit.say(FIT.goal(await API.ask('/goals', FIT.aim(Object.fromEntries(new FormData(form))))), 'goal');
+    form.reset();
+  }catch(err){ kit.bind(document, {err: err.message}) }
+  form.act.disabled = false;
+};
+form.ear('submit', ADD.send);
+form.text.ear('input', function(){ kit.bind(document, {size: form.text.value.length}) });
+</script>

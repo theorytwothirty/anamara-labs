@@ -1,0 +1,40 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Forgot password · MindFlow</title>
+<link rel="stylesheet" href="gun/kit/web.css"><link rel="stylesheet" href="app.css">
+<script src="gun/kit/web.js"></script>
+
+<form id="form" class="pad list">
+  <h1>Reset your password</h1>
+  <p class="soft">Enter your email and we'll send you a reset link.</p>
+  <label>Email <input name="mail" type="email" required autocomplete="email" placeholder="you@example.com"></label>
+  <p name="err" class="bad" hidden></p>
+  <button class="big" name="act">Send reset link</button>
+  <p class="soft">Remembered it? <a href="sign.html">Sign in</a></p>
+</form>
+
+<div id="sent" class="pad list" hidden>
+  <h1>Check your email</h1>
+  <p class="soft">If an account exists for <b name="mail"></b>, we've sent a link to reset your password. It expires in 1 hour.</p>
+  <a href="sign.html">Back to sign in</a>
+</div>
+
+<script src="gun/kit/dom.js"></script>
+<script src="env.js"></script>
+<script src="api.js"></script>
+<script src="nav.js"></script>
+<script>
+kit.createServer(function(req, res){ form.hidden = false; sent.hidden = true; res.send(kit.bind(document, {err: null})) });
+
+var LOST = {};
+LOST.send = async function(eve, f){ eve.preventDefault();
+  f = Object.fromEntries(new FormData(form));
+  kit.bind(document, {err: null, act: 'Sending…'}); form.act.disabled = true;
+  try{
+    await API.ask('/auth/request-password-reset', {email: f.mail});
+    kit.bind(sent, {mail: f.mail}); form.hidden = true; sent.hidden = false;
+  }catch(err){ kit.bind(document, {err: err.message}) }
+  kit.bind(document, {act: 'Send reset link'}); form.act.disabled = false;
+};
+form.ear('submit', LOST.send);
+</script>

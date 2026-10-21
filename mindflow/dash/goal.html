@@ -1,0 +1,34 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../gun/kit/web.css"><link rel="stylesheet" href="../app.css">
+<script src="../gun/kit/web.js"></script>
+
+<div class="card list">
+  <div class="line"><h3 class="grow">Active goals</h3><a href="../goal.html">View all</a></div>
+  <div id="none" class="list" hidden>
+    <p class="soft">You don't have any active goals yet.</p>
+    <a href="../goal.html">Create your first goal</a>
+  </div>
+  <div id="box" class="list"></div>
+</div>
+<template id="row">
+  <div class="line">
+    <span name="text" class="grow"></span>
+    <span name="kind" class="tag"></span>
+    <span name="due" class="soft tiny"></span>
+  </div>
+</template>
+
+<script src="../gun/kit/dom.js"></script>
+<script src="../pen.js"></script>
+<script src="../row.js"></script>
+<script src="../nav.js"></script>
+<script>
+// body: [goal]. Shows up to three active ones.
+kit.createServer(function(req, res){
+  var list = (req.body || []).filter(function(g){ return 'active' === g.state }).slice(0, 3);
+  none.hidden = !!list.length;
+  ROW.fill(box, row, list.map(function(g){ return {text: g.text, kind: g.kind, due: g.due ? 'Target: ' + PEN.date(g.due) : null} }));
+  res.send(document);
+});
+</script>

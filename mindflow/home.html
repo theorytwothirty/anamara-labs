@@ -1,0 +1,38 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>MindFlow</title>
+<link rel="stylesheet" href="gun/kit/web.css"><link rel="stylesheet" href="app.css">
+<script src="gun/kit/web.js"></script>
+
+<div class="pad list">
+  <h2 class="logo">MindFlow</h2>
+  <p class="tag hug">AI-powered Ericksonian hypnosis</p>
+  <h1 class="hero">Rewire your mind.<br><span>Unlock your potential.</span></h1>
+  <p class="soft">Overcome mental blocks and change unwanted habits with personalized, conversational hypnosis sessions made for you.</p>
+  <a class="btn big" href="sign.html">Sign in</a>
+  <a class="btn" href="join.html">Create an account</a>
+
+  <div class="card list">
+    <h3>Personalized scripts</h3>
+    <p class="soft">Each session is written for your specific block and how you feel right now.</p>
+  </div>
+  <div class="card list">
+    <h3>Ericksonian method</h3>
+    <p class="soft">Indirect suggestions and metaphors that gently get past conscious resistance.</p>
+  </div>
+  <div class="card list">
+    <h3>Progress tracking</h3>
+    <p class="soft">See your mood and habits change over time.</p>
+  </div>
+</div>
+
+<style>
+.logo { color: var(--link); }
+.hero { font-size: 2.2em; }
+.hero span { color: var(--link); }
+</style>
+
+<script src="nav.js"></script>
+<script>
+kit.createServer(function(req, res){ res.send(document) });
+</script>

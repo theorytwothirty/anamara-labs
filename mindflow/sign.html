@@ -1,0 +1,36 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Sign in · MindFlow</title>
+<link rel="stylesheet" href="gun/kit/web.css"><link rel="stylesheet" href="app.css">
+<script src="gun/kit/web.js"></script>
+
+<form id="form" class="pad list">
+  <h1>Welcome back</h1>
+  <p class="soft">Sign in to continue your journey.</p>
+  <label>Email <input name="mail" type="email" required autocomplete="email" placeholder="you@example.com"></label>
+  <label>Password <input name="pass" type="password" required autocomplete="current-password"></label>
+  <p name="err" class="bad" hidden></p>
+  <button class="big" name="act">Sign in</button>
+  <a href="lost.html">Forgot password?</a>
+  <p class="soft">No account yet? <a href="join.html">Sign up</a></p>
+</form>
+
+<script src="gun/kit/dom.js"></script>
+<script src="env.js"></script>
+<script src="api.js"></script>
+<script src="nav.js"></script>
+<script>
+kit.createServer(function(req, res){ res.send(kit.bind(document, {err: null})) });
+
+var SIGN = {};
+SIGN.send = async function(eve, f){ eve.preventDefault();
+  f = Object.fromEntries(new FormData(form));
+  kit.bind(document, {err: null, act: 'Signing in…'}); form.act.disabled = true;
+  try{
+    API.keep(await API.ask('/auth/login', {email: f.mail, password: f.pass}));
+    form.reset(); NAV.go('dash.html');
+  }catch(err){ kit.bind(document, {err: err.message}) }
+  kit.bind(document, {act: 'Sign in'}); form.act.disabled = false;
+};
+form.ear('submit', SIGN.send);
+</script>

@@ -1,0 +1,34 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>New session · MindFlow</title>
+<link rel="stylesheet" href="gun/kit/web.css"><link rel="stylesheet" href="app.css">
+<script src="gun/kit/web.js"></script>
+
+<div class="pad list">
+  <h1>New session</h1>
+  <p class="soft">Start a conversational reframe, or go straight to a personalized hypnosis audio session.</p>
+  <div class="line">
+    <button id="tabframe" class="grow on">Reframe</button>
+    <button id="tabdeep" class="grow">Hypnosis</button>
+  </div>
+  <iframe id="frame" src="new/frame.html" title="Reframe"></iframe>
+  <iframe id="deep" src="new/deep.html" title="Hypnosis" hidden></iframe>
+</div>
+
+<script src="gun/kit/dom.js"></script>
+<script src="nav.js"></script>
+<script>
+// body: {tab: 'frame' | 'deep'} picks a tab; otherwise the current one stays, with any work in progress.
+kit.createServer(function(req, res){
+  (req.body || {}).tab && NEW.pick((req.body || {}).tab);
+  res.send(document);
+});
+
+var NEW = {};
+NEW.pick = function(tab){
+  frame.hidden = 'frame' !== tab; deep.hidden = 'deep' !== tab;
+  tabframe.tag('on', frame.hidden ? -1 : 1); tabdeep.tag('on', deep.hidden ? -1 : 1);
+};
+tabframe.ear('click', function(){ NEW.pick('frame') });
+tabdeep.ear('click', function(){ NEW.pick('deep') });
+</script>

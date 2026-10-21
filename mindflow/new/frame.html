@@ -1,0 +1,59 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../gun/kit/web.css"><link rel="stylesheet" href="../app.css">
+<script src="../gun/kit/web.js"></script>
+
+<form id="form" class="card list">
+  <label>What problem are you facing?
+    <textarea name="issue" required minlength="10" maxlength="1000" placeholder="E.g., I keep putting off important conversations because I'm afraid of conflict…"></textarea>
+  </label>
+  <p name="err" class="bad" hidden></p>
+  <button class="big" name="act">Get reframe</button>
+</form>
+
+<div id="out" class="list" hidden>
+  <div class="card list"><h3>Reframe</h3><p name="view" class="loud"></p></div>
+  <div class="card list"><h3>The positive intention</h3><p name="aim"></p></div>
+  <div class="card list"><h3>A new perspective</h3><p name="turn"></p></div>
+  <iframe id="chat" src="frame/chat.html" title="How does this land?"></iframe>
+  <iframe id="drill" src="frame/drill.html" title="Somatic practice"></iframe>
+  <p name="fail" class="bad" hidden></p>
+  <button id="make" class="big">Generate a hypnosis audio</button>
+  <button id="over">Start over</button>
+</div>
+
+<script src="../gun/kit/dom.js"></script>
+<script src="../env.js"></script>
+<script src="../api.js"></script>
+<script src="../fit.js"></script>
+<script src="../nav.js"></script>
+<script src="../make.js"></script>
+<script>
+kit.createServer(function(req, res){ res.send(kit.bind(document, {err: null})) });
+
+var FRAME = {};
+FRAME.fill = function(conv){ FRAME.conv = conv;
+  kit.bind(document, {view: conv.view, aim: conv.aim, turn: conv.turn, fail: null});
+  kit.fetch(chat, conv).catch(Boolean); kit.fetch(drill, conv).catch(Boolean);
+  form.hidden = true; out.hidden = false;
+};
+FRAME.send = async function(eve){ eve.preventDefault();
+  kit.bind(document, {err: null, act: 'Generating…'}); form.act.disabled = true;
+  try{ FRAME.fill(FIT.frame(await API.ask('/reframes', {problem: form.issue.value}))) }
+  catch(err){ kit.bind(document, {err: err.message}) }
+  kit.bind(document, {act: 'Get reframe'}); form.act.disabled = false;
+};
+FRAME.make = async function(){
+  kit.bind(document, {fail: null}); make.disabled = true;
+  try{ await MAKE.sess({issue: FRAME.conv.issue, mood: 5}, MAKE.root + 'new.html') }
+  catch(err){ kit.bind(document, {fail: err.message}) }
+  make.disabled = false;
+};
+FRAME.over = function(){ FRAME.conv = null; form.reset(); out.hidden = true; form.hidden = false };
+
+form.ear('submit', FRAME.send);
+make.ear('click', FRAME.make);
+over.ear('click', FRAME.over);
+// The chat and practice parts send back the updated conversation after each change.
+kit.ear('frame', function(eve){ eve.preventDefault(); FRAME.conv = eve.detail });
+</script>

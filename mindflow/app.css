@@ -1,0 +1,58 @@
+/* MindFlow look on top of gun/kit/web.css: tokens first, then small reusable classes. */
+:root {
+  --mood: #0d0509; --m00d: 13,5,9; --fill: var(--mood);
+  --pop: #fdf2f4; --soft: rgba(253,242,244,0.6); --line: rgba(253,242,244,0.14); --glass: rgba(255,255,255,0.05);
+  --hue: #be123c; --deep: #450a0a; --glow: rgba(190,18,60,0.45); --link: #fb7185;
+  --err: #f87171; --oval: 1.2em; --drip: stretch;
+  --font: system-ui, sans-serif; --serif: Georgia, 'Times New Roman', serif;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) { :root { --mood: #0d0509; --m00d: 13,5,9; } }
+
+[hidden] { display: none !important; }
+html:not(.part) body {
+  background: radial-gradient(40em 30em at 0% 0%, rgba(127,29,29,0.35), transparent 70%),
+    radial-gradient(40em 30em at 100% 100%, rgba(136,19,55,0.3), transparent 70%), var(--mood);
+}
+body { color: var(--pop); align-content: start; }
+h1, h2, h3, h4 { font-family: var(--serif); font-weight: 600; margin: 0; line-height: 1.2; }
+h1 { font-size: 1.7em; } h2 { font-size: 1.35em; } h3 { font-size: 1.1em; }
+a { color: var(--link); text-decoration: none; }
+iframe { width: 100%; border: 0; display: block; }
+ol { list-style: decimal; padding-left: 1.4em; display: grid; gap: 0.4em; }
+ol li { display: list-item; list-style: inherit; }
+
+button, .btn {
+  min-height: 3em; padding: 0.6em 1.2em; border-radius: 2em; border: 1px solid var(--line);
+  background: var(--glass); color: var(--pop); font-weight: 600; cursor: pointer; text-align: center; place-content: center;
+}
+button:active, .btn:active { transform: scale(0.97); }
+button:disabled { opacity: 0.45; cursor: default; }
+.big { background: linear-gradient(90deg, var(--hue), var(--deep)); border: 0; box-shadow: 0 0 1.2em var(--glow); }
+.on { border-color: var(--link); color: var(--link); }
+
+input, textarea, select {
+  min-height: 3em; width: 100%; padding: 0.7em 0.9em; border-radius: 0.8em;
+  border: 1px solid var(--line); background: rgba(0,0,0,0.3); color: var(--pop); font: inherit;
+}
+input:focus, textarea:focus, select:focus { border-color: var(--link); }
+input[type=range] { padding: 0; accent-color: var(--hue); }
+input[type=checkbox] { width: 1.6em; min-height: 1.6em; accent-color: var(--hue); }
+textarea { min-height: 7em; resize: vertical; }
+label { display: grid; gap: 0.3em; color: var(--soft); font-size: 0.85em; }
+label > * { font-size: 1.15em; color: var(--pop); }
+
+.pad { padding-bottom: 6em; }
+.card { padding: 1em; border-radius: var(--oval); border: 1px solid var(--line); background: var(--glass); backdrop-filter: blur(var(--blur)); }
+.list { display: grid; gap: 0.75em; }
+.line { display: flex; flex-wrap: wrap; gap: 0.6em; align-items: center; }
+.grow { flex: 1 1 8em; }
+.soft { color: var(--soft); }
+.tiny { font-size: 0.75em; }
+.bad { color: var(--err); }
+.good { color: #6ee7b7; }
+.tag { padding: 0.1em 0.7em; border-radius: 1em; border: 1px solid var(--line); font-size: 0.7em; text-transform: capitalize; }
+.num { font-family: var(--serif); font-size: 1.8em; color: var(--link); }
+.wait { animation: pulse 1.5s infinite; }
+.hug { justify-self: start; }
+.calm { text-align: center; }

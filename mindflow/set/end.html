@@ -1,0 +1,46 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../gun/kit/web.css"><link rel="stylesheet" href="../app.css">
+<script src="../gun/kit/web.js"></script>
+
+<div class="list">
+  <button id="out">Sign out</button>
+  <div class="card list warn">
+    <h2>Delete account</h2>
+    <p class="soft">Deleting your account starts a 30-day grace period before your data is permanently removed.</p>
+    <p name="err" class="bad" hidden></p>
+    <button id="kill" class="bad">Delete account</button>
+    <div id="sure" class="line" hidden>
+      <button id="yes" class="grow bad">Yes, delete it</button>
+      <button id="no" class="grow">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<style>.warn { border-color: rgba(248,113,113,0.35); }</style>
+
+<script src="../gun/kit/dom.js"></script>
+<script src="../env.js"></script>
+<script src="../api.js"></script>
+<script src="../nav.js"></script>
+<script>
+// No body. Resets the delete confirmation each time settings opens.
+kit.createServer(function(req, res){ END.ask(0); res.send(kit.bind(document, {err: null})) });
+
+var END = {};
+END.ask = function(on){ kill.hidden = !!on; sure.hidden = !on };
+END.out = async function(ref){
+  ref = localStorage[API.key.ref]; API.drop();
+  if(ref){ API.ask('/auth/logout', {refresh_token: ref}).catch(Boolean) }
+  NAV.go('../home.html');
+};
+END.kill = async function(){
+  yes.disabled = true; kit.bind(document, {err: null});
+  try{ await API.ask('/users/me', undefined, 'DELETE'); END.out() }
+  catch(err){ yes.disabled = false; kit.bind(document, {err: err.message}) }
+};
+out.ear('click', END.out);
+kill.ear('click', function(){ END.ask(1) });
+no.ear('click', function(){ END.ask(0) });
+yes.ear('click', END.kill);
+</script>

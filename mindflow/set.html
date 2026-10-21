@@ -1,0 +1,29 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Settings · MindFlow</title>
+<link rel="stylesheet" href="gun/kit/web.css"><link rel="stylesheet" href="app.css">
+<script src="gun/kit/web.js"></script>
+
+<div class="pad list">
+  <h1>Settings</h1>
+  <p class="soft">Manage your profile, session preferences, and account.</p>
+  <p name="err" class="bad" hidden></p>
+  <iframe id="me" src="set/me.html" title="Profile and preferences"></iframe>
+  <a class="btn" href="mood.html">See your progress</a>
+  <iframe id="pass" src="set/pass.html" title="Change password"></iframe>
+  <iframe id="data" src="set/data.html" title="Your data"></iframe>
+  <iframe id="end" src="set/end.html" title="Account"></iframe>
+</div>
+
+<script src="env.js"></script>
+<script src="api.js"></script>
+<script src="fit.js"></script>
+<script src="nav.js"></script>
+<script>
+// No body needed: every show reloads the profile into its form.
+kit.createServer(async function(req, res){
+  try{ await kit.fetch(me, FIT.user(await API.ask('/users/me'))) }catch(err){ kit.bind(document, {err: err.message}); return res.send(document) }
+  [pass, data, end].forEach(function(one){ kit.fetch(one, {}).catch(Boolean) });
+  res.send(kit.bind(document, {err: null}));
+});
+</script>

@@ -1,0 +1,54 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>MindFlow</title>
+<meta name="theme-color" content="#0d0509">
+<meta name="description" content="Personalized Ericksonian hypnosis and reframing, generated for you.">
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="gun/kit/web.css"><link rel="stylesheet" href="app.css">
+<script src="gun/kit/web.js"></script>
+<script>navigator.serviceWorker && navigator.serviceWorker.register('sw.js').catch(Boolean)</script>
+
+<nav id="bar" class="fog">
+  <a href="dash.html">Home</a>
+  <a href="new.html">New</a>
+  <a href="shelf.html">Library</a>
+  <a href="goal.html">Goals</a>
+  <a href="set.html">Me</a>
+</nav>
+
+<style>
+iframe.page:not(.main) { display: none; }
+#bar { position: fixed; z-index: 9; left: 0; right: 0; bottom: 0; display: flex; padding: 0.4em 0.4em calc(0.4em + env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: rgba(var(--m00d),0.75); }
+#bar a { flex: 1; min-height: 3em; display: grid; place-items: center; border-radius: 1em; color: var(--soft); font-size: 0.8em; font-weight: 600; }
+#bar a.on { color: var(--pop); background: var(--glass); }
+body.out #bar { display: none; }
+</style>
+
+<script src="gun/kit/dom.js"></script>
+<script src="env.js"></script>
+<script src="api.js"></script>
+<script>;(function(){
+var APP = {start: 'dash.html', open: 'home.html sign.html join.html lost.html reset.html verify.html'.split(' ')};
+
+// path: 'play.html?id=1' or a full URL from a component. Shows that page and asks it to (re)load.
+APP.show = function(path, page, view){
+  path = (path || location.hash.slice(1) || APP.start).replace(location.__dirname + '/', '');
+  page = path.split('?')[0];
+  if(!API.tok() && APP.open.indexOf(page) < 0){ path = page = 'home.html' }
+  if(API.tok() && 'home.html' === page){ path = page = APP.start }
+  document.body.tag('out', API.tok() ? -1 : 1);
+  document.body.all('#bar a').forEach(function(a){ a.tag('on', a.getAttribute('href') === page ? 1 : -1) });
+  if(path !== APP.now){ window.scrollTo(0, 0); document.body.scrollTop = 0 }
+  APP.now = path; location.path = path;
+  view = document.getElementById(path);
+  kit.fetch(view, kit.querystring.parse(path.split('?')[1] || '')).catch(function(){});
+};
+
+kit.ear('go', function(eve){ eve.preventDefault(); APP.show(eve.detail) });
+document.body.all('#bar a').ear('click', function(eve){ eve.preventDefault(); APP.show(this.getAttribute('href')) });
+window.addEventListener('hashchange', function(){ setTimeout(function(){
+  if(location.hash.slice(1) !== APP.now){ APP.show() }
+}) });
+window.addEventListener('DOMContentLoaded', function(){ APP.show() });
+}());
+</script>

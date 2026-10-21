@@ -1,0 +1,59 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../gun/kit/web.css"><link rel="stylesheet" href="../app.css">
+<script src="../gun/kit/web.js"></script>
+
+<div class="card list calm">
+  <div id="orb" class="orb"></div>
+  <h2 name="title"></h2>
+  <p class="soft tiny">AI-generated session</p>
+  <p name="none" class="soft" hidden>This session has no audio. Read the script below at your own pace.</p>
+  <audio id="sound"></audio>
+  <div id="ctrl" class="list">
+    <input id="seek" type="range" min="0" max="1000" value="0" aria-label="Position">
+    <div class="line tiny soft"><span name="now" class="grow">0:00</span><span name="end">0:00</span></div>
+    <div class="line">
+      <button id="back" class="grow" aria-label="Back 15 seconds">−15s</button>
+      <button id="go" class="grow big">Play</button>
+      <button id="next" class="grow" aria-label="Forward 15 seconds">+15s</button>
+    </div>
+    <button id="mute">Mute</button>
+  </div>
+  <button id="done">Mark complete</button>
+</div>
+
+<style>
+.orb { width: 6em; height: 6em; margin: 1em auto; border-radius: 50%; background: radial-gradient(circle, var(--hue), var(--deep) 60%, transparent 70%); }
+.line button { flex: 1 1 0; padding: 0.6em 0.4em; }
+.orb.live { animation: pulse 3s infinite; box-shadow: 0 0 3em var(--glow); }
+</style>
+
+<script src="../gun/kit/dom.js"></script>
+<script src="../pen.js"></script>
+<script>
+// body: {src: audio URL or '', title}. Says 'done' when the audio ends or "Mark complete" is tapped.
+kit.createServer(function(req, res){
+  var b = req.body || {};
+  sound.pause(); b.src ? sound.src = b.src : sound.removeAttribute('src');
+  ctrl.hidden = !b.src;
+  res.send(kit.bind(document, {title: b.title, none: b.src ? null : {}, now: '0:00', end: '0:00'}));
+});
+
+var DECK = {};
+DECK.time = function(){
+  kit.bind(document, {now: PEN.clock(sound.currentTime), end: PEN.clock(sound.duration)});
+  if(sound.duration){ seek.value = Math.round(1000 * sound.currentTime / sound.duration) }
+};
+DECK.skip = function(s){ sound.currentTime = Math.min(Math.max(sound.currentTime + s, 0), sound.duration || 0) };
+DECK.live = function(){ go.textContent = sound.paused ? 'Play' : 'Pause'; orb.tag('live', sound.paused ? -1 : 1) };
+
+go.ear('click', function(){ sound.paused ? sound.play().catch(Boolean) : sound.pause() });
+back.ear('click', function(){ DECK.skip(-15) });
+next.ear('click', function(){ DECK.skip(15) });
+mute.ear('click', function(){ sound.muted = !sound.muted; mute.textContent = sound.muted ? 'Unmute' : 'Mute' });
+seek.ear('input', function(){ if(sound.duration){ sound.currentTime = seek.value / 1000 * sound.duration } });
+sound.ear('timeupdate loadedmetadata', DECK.time);
+sound.ear('play pause', DECK.live);
+sound.ear('ended', function(){ kit.say(true, 'done') });
+done.ear('click', function(){ sound.pause(); kit.say(true, 'done') });
+</script>

@@ -1,0 +1,52 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../gun/kit/web.css"><link rel="stylesheet" href="../app.css">
+<script src="../gun/kit/web.js"></script>
+
+<form id="form" class="card list">
+  <h2>Profile</h2>
+  <label>Name <input name="name" required maxlength="100" autocomplete="name"></label>
+  <label>Email <input name="mail" type="email" disabled></label>
+  <div class="line">
+    <span class="grow soft tiny">Plan <b name="plan"></b></span>
+    <span class="grow soft tiny">Email verified <b name="ok"></b></span>
+  </div>
+  <h2>Session preferences</h2>
+  <label>Voice
+    <select name="voice">
+      <option value="calm_female">Calm female</option>
+      <option value="calm_male">Calm male</option>
+      <option value="warm_female">Warm female</option>
+      <option value="warm_male">Warm male</option>
+    </select>
+  </label>
+  <label>Session length: <b name="mins">20</b> minutes <input name="len" type="range" min="5" max="45" step="5" value="20"></label>
+  <label class="line"><input name="bg" type="checkbox"> <span class="grow">Background sounds</span></label>
+  <p name="err" class="bad" hidden></p>
+  <p name="saved" class="good" hidden>Saved</p>
+  <button class="big" name="act">Save changes</button>
+</form>
+
+<script src="../gun/kit/dom.js"></script>
+<script src="../env.js"></script>
+<script src="../api.js"></script>
+<script src="../fit.js"></script>
+<script>
+// body: a user {name, mail, plan, ok, pref: {voice, len, bg}}.
+kit.createServer(function(req, res){ ME.fill(req.body || {}); res.send(document) });
+
+var ME = {};
+ME.fill = function(u, p){ p = u.pref || {};
+  kit.bind(document, {name: u.name, mail: u.mail, plan: u.plan, ok: u.ok, voice: p.voice, len: p.len, mins: p.len, err: null, saved: null});
+  form.bg.checked = !!p.bg;
+};
+ME.send = async function(eve, f){ eve.preventDefault();
+  f = Object.fromEntries(new FormData(form)); f.bg = form.bg.checked;
+  form.act.disabled = true; kit.bind(document, {err: null, saved: null});
+  try{ ME.fill(FIT.user(await API.ask('/users/me', FIT.me(f), 'PATCH'))); kit.bind(document, {saved: {}}) }
+  catch(err){ kit.bind(document, {err: err.message}) }
+  form.act.disabled = false;
+};
+form.ear('submit', ME.send);
+form.len.ear('input', function(){ kit.bind(document, {mins: form.len.value}) });
+</script>

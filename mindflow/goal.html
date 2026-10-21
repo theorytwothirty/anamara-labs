@@ -1,0 +1,70 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Goals · MindFlow</title>
+<link rel="stylesheet" href="gun/kit/web.css"><link rel="stylesheet" href="app.css">
+<script src="gun/kit/web.js"></script>
+
+<div class="pad list">
+  <h1>Goals</h1>
+  <p class="soft"><span name="count">0</span>/3 active goals</p>
+  <button id="plus" class="big">New goal</button>
+  <iframe id="add" src="goal/add.html" title="New goal" hidden></iframe>
+  <p name="err" class="bad" hidden></p>
+  <div id="none" class="card list" hidden><p class="soft">You don't have any goals yet. Create one to get started.</p></div>
+  <div id="box" class="list"></div>
+</div>
+<template id="row">
+  <div class="card list">
+    <span class="line"><span name="state" class="tag"></span><span name="kind" class="soft tiny"></span></span>
+    <p name="text"></p>
+    <span name="due" class="soft tiny"></span>
+    <div class="line">
+      <button class="grow" value="completed">Complete</button>
+      <button class="grow" value="paused">Pause</button>
+      <button class="grow" value="active">Resume</button>
+      <button class="grow" value="">Delete</button>
+    </div>
+  </div>
+</template>
+
+<script src="gun/kit/dom.js"></script>
+<script src="env.js"></script>
+<script src="api.js"></script>
+<script src="fit.js"></script>
+<script src="pen.js"></script>
+<script src="row.js"></script>
+<script src="nav.js"></script>
+<script>
+// No body needed: every show reloads the goals.
+kit.createServer(async function(req, res){ await GOAL.load(); res.send(document) });
+
+var GOAL = {};
+GOAL.load = async function(list){
+  kit.bind(document, {err: null});
+  try{ list = FIT.list(FIT.goal)(await API.ask('/goals')) }catch(err){ list = []; kit.bind(document, {err: err.message}) }
+  GOAL.draw(list);
+};
+GOAL.draw = function(list){ GOAL.all = list;
+  none.hidden = !!list.length;
+  kit.bind(document, {count: list.filter(function(g){ return 'active' === g.state }).length});
+  ROW.fill(box, row, list.map(function(g){ return {id: g.id, state: g.state, kind: g.kind, text: g.text, due: g.due ? 'Target: ' + PEN.date(g.due) : null} }), GOAL.wire);
+};
+// Show only the moves that make sense for this goal's state; an empty value means delete.
+GOAL.wire = function(el, g){
+  el.all('button').forEach(function(b){
+    b.hidden = b.value === g.state || ('paused' === b.value && 'active' !== g.state) || ('active' === b.value && 'paused' !== g.state);
+    b.ear('click', function(){ GOAL.move(g, b.value, b) });
+  });
+};
+GOAL.move = async function(g, state, b){
+  b.disabled = true; kit.bind(document, {err: null});
+  try{
+    if(state){ await API.ask('/goals/' + g.id, {status: state}, 'PATCH') } else { await API.ask('/goals/' + g.id, undefined, 'DELETE') }
+    await GOAL.load();
+  }catch(err){ b.disabled = false; kit.bind(document, {err: err.message}) }
+};
+GOAL.show = function(on){ add.hidden = !on; plus.textContent = on ? 'Cancel' : 'New goal'; on && kit.fetch(add, {}).catch(Boolean) };
+plus.ear('click', function(){ GOAL.show(add.hidden) });
+// The form says 'goal' after it creates one.
+kit.ear('goal', function(eve){ eve.preventDefault(); GOAL.show(0); GOAL.load() });
+</script>

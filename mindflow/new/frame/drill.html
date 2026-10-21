@@ -1,0 +1,55 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../gun/kit/web.css"><link rel="stylesheet" href="../../app.css">
+<script src="../../gun/kit/web.js"></script>
+
+<div class="list">
+  <div id="card" class="card list" hidden>
+    <h3 name="title"></h3>
+    <ol id="box"></ol>
+    <p class="loud">“<span name="self"></span>”</p>
+    <audio id="play" controls hidden></audio>
+    <button id="hear">Listen to this practice</button>
+    <p name="hurt" class="bad" hidden></p>
+  </div>
+  <p name="err" class="bad" hidden></p>
+  <button id="ask">Do a somatic practice</button>
+</div>
+<template id="row"><li><span name="text"></span></li></template>
+
+<script src="../../gun/kit/dom.js"></script>
+<script src="../../env.js"></script>
+<script src="../../api.js"></script>
+<script src="../../fit.js"></script>
+<script src="../../row.js"></script>
+<script>
+// body: a reframe conversation {id, drill: null | {title, steps, self}, sound}.
+kit.createServer(function(req, res){ DRILL.mute(); DRILL.draw(req.body); res.send(document) });
+
+var DRILL = {};
+DRILL.draw = function(conv, d){ DRILL.conv = conv; d = conv.drill;
+  card.hidden = !d; ask.textContent = d ? 'Try another practice' : 'Do a somatic practice';
+  d && kit.bind(card, {title: d.title, self: d.self});
+  d && ROW.fill(box, row, d.steps.map(function(s){ return {text: s} }));
+  kit.bind(document, {err: null, hurt: null});
+};
+DRILL.mute = function(){ play.pause(); play.hidden = true; hear.hidden = false; play.src && URL.revokeObjectURL(play.src); play.removeAttribute('src') };
+DRILL.keep = function(conv){ DRILL.draw(conv); kit.say(conv, 'frame') };
+DRILL.ask = async function(){
+  ask.disabled = true; DRILL.mute();
+  try{ DRILL.keep(FIT.frame(await API.ask('/reframes/' + DRILL.conv.id + '/practice', {}))); await DRILL.hear() }
+  catch(err){ kit.bind(document, {err: err.message}) }
+  ask.disabled = false;
+};
+DRILL.hear = async function(){
+  hear.disabled = true; hear.textContent = 'Generating audio…';
+  try{
+    if(!DRILL.conv.sound){ DRILL.keep(FIT.frame(await API.ask('/reframes/' + DRILL.conv.id + '/practice/audio', {}))) }
+    play.src = await API.link('/reframes/' + DRILL.conv.id + '/practice/audio');
+    play.hidden = false; hear.hidden = true; play.play().catch(Boolean);
+  }catch(err){ kit.bind(document, {hurt: err.message}) }
+  hear.disabled = false; hear.textContent = 'Listen to this practice';
+};
+ask.ear('click', DRILL.ask);
+hear.ear('click', DRILL.hear);
+</script>

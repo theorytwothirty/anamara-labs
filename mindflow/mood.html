@@ -1,0 +1,45 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Progress · MindFlow</title>
+<link rel="stylesheet" href="gun/kit/web.css"><link rel="stylesheet" href="app.css">
+<script src="gun/kit/web.js"></script>
+
+<div class="pad list">
+  <h1>Progress</h1>
+  <p class="soft">Your mood trends and session history.</p>
+  <p name="err" class="bad" hidden></p>
+  <div class="card line">
+    <div class="grow"><div name="count" class="num">0</div><div class="soft tiny">Sessions completed</div></div>
+    <div class="grow"><div name="rate" class="num">--</div><div class="soft tiny">Habit success rate</div></div>
+    <div class="grow"><div name="logs" class="num">0</div><div class="soft tiny">Habit logs</div></div>
+  </div>
+  <iframe id="chart" src="mood/chart.html" title="Mood trend"></iframe>
+  <div id="tips" class="card list" hidden><h3>Insights</h3><ul id="box" class="list"></ul></div>
+  <button id="csv">Export CSV</button>
+  <a id="file" download="mindflow_progress.csv" hidden></a>
+</div>
+<template id="row"><li><span name="text"></span></li></template>
+
+<script src="gun/kit/dom.js"></script>
+<script src="env.js"></script>
+<script src="api.js"></script>
+<script src="fit.js"></script>
+<script src="row.js"></script>
+<script src="nav.js"></script>
+<script>
+// No body needed: every show reloads the summary.
+kit.createServer(async function(req, res){
+  var s;
+  try{ s = FIT.sum(await API.ask('/progress/summary')) }catch(err){ return res.send(kit.bind(document, {err: err.message})) }
+  kit.fetch(chart, s.trend).catch(Boolean);
+  tips.hidden = !s.tips.length;
+  ROW.fill(box, row, s.tips.map(function(t){ return {text: t} }));
+  res.send(kit.bind(document, {err: null, count: s.count, logs: s.logs, rate: null == s.rate ? '--' : Math.round(s.rate * 100) + '%'}));
+});
+
+csv.ear('click', async function(){
+  csv.disabled = true; kit.bind(document, {err: null});
+  try{ await API.save('/progress/export', file) }catch(err){ kit.bind(document, {err: err.message}) }
+  csv.disabled = false;
+});
+</script>

@@ -1,0 +1,44 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../gun/kit/web.css"><link rel="stylesheet" href="../../app.css">
+<script src="../../gun/kit/web.js"></script>
+
+<div class="card list">
+  <h3>How does this land?</h3>
+  <div id="box" class="list"></div>
+  <form id="form" class="line">
+    <input name="text" class="grow" required maxlength="1000" placeholder="Tell me how this resonates, or what's still not landing…">
+    <button class="big" name="act">Send</button>
+  </form>
+  <p name="err" class="bad" hidden></p>
+</div>
+<template id="row"><div class="say"><span name="text"></span></div></template>
+
+<style>
+.say { padding: 0.6em 0.9em; border-radius: 1em; background: var(--glass); max-width: 85%; justify-self: start; }
+.say.me { justify-self: end; background: rgba(190,18,60,0.25); font-size: 0.9em; }
+</style>
+
+<script src="../../gun/kit/dom.js"></script>
+<script src="../../env.js"></script>
+<script src="../../api.js"></script>
+<script src="../../fit.js"></script>
+<script src="../../row.js"></script>
+<script>
+// body: a reframe conversation {id, msgs: [{who, text}]}.
+kit.createServer(function(req, res){ CHAT.draw(req.body); res.send(kit.bind(document, {err: null})) });
+
+var CHAT = {};
+CHAT.draw = function(conv){ CHAT.conv = conv;
+  ROW.fill(box, row, conv.msgs, function(el, m){ el.tag(m.who, 1) });
+};
+CHAT.send = async function(eve, text){ eve.preventDefault();
+  text = form.text.value; form.text.value = ''; form.act.disabled = true; kit.bind(document, {err: null});
+  try{
+    CHAT.draw(FIT.frame(await API.ask('/reframes/' + CHAT.conv.id + '/messages', {message: text})));
+    kit.say(CHAT.conv, 'frame');
+  }catch(err){ form.text.value = text; kit.bind(document, {err: err.message}) }
+  form.act.disabled = false;
+};
+form.ear('submit', CHAT.send);
+</script>

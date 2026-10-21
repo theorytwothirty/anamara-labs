@@ -1,0 +1,39 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../gun/kit/web.css"><link rel="stylesheet" href="../app.css">
+<script src="../gun/kit/web.js"></script>
+
+<div class="list">
+  <div class="line"><h3 class="grow">Recent sessions</h3><a href="../shelf.html">Library</a></div>
+  <div id="none" class="card list" hidden>
+    <p class="soft">No sessions yet. Start your first one to see it here.</p>
+    <a href="../new.html">Start a reframe</a>
+  </div>
+  <div id="box" class="list"></div>
+</div>
+<template id="row">
+  <a class="card list">
+    <h4 name="title"></h4>
+    <span name="stars" class="tiny"></span>
+    <span name="when" class="soft tiny"></span>
+  </a>
+</template>
+
+<script src="../gun/kit/dom.js"></script>
+<script src="../pen.js"></script>
+<script src="../row.js"></script>
+<script src="../nav.js"></script>
+<script>
+// body: [session]. Shows the three most recent ready ones, newest first.
+kit.createServer(function(req, res){
+  var list = (req.body || []).filter(function(s){ return 'ready' === s.state }).sort(LAST.new).slice(0, 3);
+  none.hidden = !!list.length;
+  ROW.fill(box, row, list.map(LAST.item), function(el, s){ el.href = '../play.html?id=' + encodeURIComponent(s.id) });
+  res.send(document);
+});
+
+var LAST = {};
+LAST.at = function(s){ return new Date(s.done || s.made).getTime() };
+LAST.new = function(a, b){ return LAST.at(b) - LAST.at(a) };
+LAST.item = function(s){ return {id: s.id, title: s.title, stars: PEN.star(s.stars) || null, when: PEN.ago(s.done || s.made) + ' · ' + s.len + ' min'} };
+</script>

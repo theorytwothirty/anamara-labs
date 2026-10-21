@@ -1,0 +1,23 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Verify email · MindFlow</title>
+<link rel="stylesheet" href="gun/kit/web.css"><link rel="stylesheet" href="app.css">
+<script src="gun/kit/web.js"></script>
+
+<div class="pad list">
+  <h1 name="head">Verifying your email…</h1>
+  <p name="text" class="soft"></p>
+  <a class="btn big" href="dash.html">Continue</a>
+</div>
+
+<script src="env.js"></script>
+<script src="api.js"></script>
+<script src="nav.js"></script>
+<script>
+kit.createServer(async function(req, res){
+  var token = (req.body || {}).token, out = {head: 'Email verified', text: 'Thanks! Your email is confirmed.'};
+  try{ if(!token){ throw new Error('This verification link is missing its code.') } await API.ask('/auth/verify-email', {token: token}) }
+  catch(err){ out = {head: 'Could not verify', text: err.message} }
+  res.send(kit.bind(document, out));
+});
+</script>
