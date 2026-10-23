@@ -1,0 +1,42 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../gun/kit/web.css"><link rel="stylesheet" href="../app.css">
+<script src="../gun/kit/web.js"></script>
+
+<section class="card list">
+  <p class="cap">Real-world steps</p>
+  <div class="line"><b name="tried" class="num">0</b><span class="grow soft">steps tried in daily life</span></div>
+  <p id="none" class="soft" hidden>When you try a step from a practice, it shows up here with what you noticed.</p>
+  <ul id="box" class="list"></ul>
+</section>
+<template id="row">
+  <li class="list step">
+    <span class="line tiny"><span name="how" class="tag"></span><span name="when" class="soft"></span></span>
+    <b name="text"></b>
+    <span name="happened" class="soft"></span>
+    <span name="next" class="tiny"></span>
+  </li>
+</template>
+
+<style>
+.step { gap: var(--s1); padding: var(--s3) 0 var(--s3) var(--s4); border-left: 3px solid var(--lilact); }
+</style>
+
+<script src="../gun/kit/dom.js"></script>
+<script src="../pen.js"></script>
+<script src="../row.js"></script>
+<script>
+// body: [action], newest first. Lists the latest steps someone came back to, with what they noticed.
+kit.createServer(function(req, res){
+  var list = (req.body || []).filter(function(a){ return 'planned' !== a.state });
+  none.hidden = !!list.length;
+  ROW.fill(box, row, list.slice(0, 6).map(STEPS.item));
+  res.send(kit.bind(document, {tried: list.filter(function(a){ return 'done' === a.state }).length}));
+});
+
+var STEPS = {};
+STEPS.item = function(a, h){ h = a.how || {};
+  return {text: a.text, how: 'done' === a.state ? 'Tried' : 'Not this time', when: PEN.ago(a.done || a.made),
+    happened: h.happened || null, next: h.next ? 'Next: ' + h.next : null};
+};
+</script>

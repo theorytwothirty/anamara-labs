@@ -1,0 +1,52 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../gun/kit/web.css"><link rel="stylesheet" href="../app.css">
+<script src="../gun/kit/web.js"></script>
+
+<form id="form" class="list">
+  <h3 name="head"></h3>
+  <p name="lead" class="soft"></p>
+  <label><span name="ask"></span> <textarea name="happened" maxlength="500"></textarea></label>
+  <label id="felt">What felt different? <textarea name="different" maxlength="500"></textarea></label>
+  <label>What would you like to practice next? <input name="hope" maxlength="200"></label>
+  <p name="err" class="bad" hidden></p>
+  <button class="big" name="keep">Save</button>
+  <button type="button" id="skip" class="ghost">Skip the questions</button>
+</form>
+<div id="thanks" class="list" hidden>
+  <h3>Thank you for noticing.</h3>
+  <p class="soft" name="note"></p>
+  <p class="say" name="aim"></p>
+  <div class="line"><a class="btn grow" href="../new.html">Start a practice</a><button id="back" class="grow ghost">Back to Today</button></div>
+</div>
+
+<script src="../gun/kit/dom.js"></script>
+<script src="../env.js"></script>
+<script src="../api.js"></script>
+<script src="../fit.js"></script>
+<script>
+// body: {id, text, tried}. Asks a few optional questions, saves them, then says 'reflect' with the updated action.
+// Says 'reflect' with {back: true} when the person is ready to go back.
+kit.createServer(function(req, res){ var b = req.body || {};
+  HOW.id = b.id; HOW.tried = !!b.tried; form.reset(); felt.hidden = !HOW.tried; HOW.show(form);
+  res.send(kit.bind(document, HOW.tried
+    ? {head: 'How did it go?', lead: 'There are no right answers. A few words is plenty.', ask: 'What happened?', err: null}
+    : {head: "That's okay.", lead: 'Noticing what got in the way is part of the practice too.', ask: 'What got in the way?', err: null}));
+});
+
+var HOW = {};
+HOW.show = function(one){ form.hidden = form !== one; thanks.hidden = thanks !== one };
+HOW.send = async function(eve, a){ eve && eve.preventDefault();
+  form.keep.disabled = skip.disabled = true; kit.bind(form, {err: null});
+  try{
+    a = FIT.act(await API.ask('/actions/' + HOW.id + '/reflection', FIT.how(eve ? {tried: HOW.tried, happened: form.happened.value,
+      different: form.different.value, next: form.hope.value} : {tried: HOW.tried})));
+    kit.bind(thanks, {note: a.how.next ? 'Next time, you want to practice:' : 'Every try teaches you something.', aim: a.how.next || null});
+    HOW.show(thanks); kit.say(a, 'reflect');
+  }catch(err){ kit.bind(form, {err: err.message}) }
+  form.keep.disabled = skip.disabled = false;
+};
+form.ear('submit', HOW.send);
+skip.ear('click', function(){ HOW.send() });
+back.ear('click', function(){ kit.say({back: true}, 'reflect') });
+</script>

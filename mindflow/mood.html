@@ -17,6 +17,7 @@
     <p class="soft tiny">Practicing regularly builds the habit. Real change shows up in how you feel and respond in daily life, so notice that too.</p>
   </section>
   <iframe id="chart" src="mood/chart.html" title="How you've been feeling"></iframe>
+  <iframe id="steps" src="mood/steps.html" title="Real-world steps"></iframe>
   <section id="tips" class="card list" hidden><p class="cap">Insights</p><ul id="box" class="list"></ul></section>
   <button id="csv" class="hug">Download my progress (CSV)</button>
   <a id="file" download="mindflow_progress.csv" hidden></a>
@@ -38,6 +39,7 @@
 // No body needed: every show reloads the summary.
 kit.createServer(async function(req, res){
   var s;
+  API.ask('/actions').then(function(a){ return kit.fetch(steps, a.map(FIT.act)) }).catch(Boolean);
   try{ s = FIT.sum(await API.ask('/progress/summary')) }catch(err){ return res.send(kit.bind(document, {err: err.message})) }
   kit.fetch(chart, s.trend).catch(Boolean);
   tips.hidden = !s.tips.length;

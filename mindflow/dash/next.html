@@ -11,6 +11,7 @@
     <div class="line"><button id="did" class="grow big">I did it</button><button id="not" class="grow">Not this time</button></div>
     <p name="err" class="bad" hidden></p>
   </div>
+  <iframe id="how" src="how.html" title="How did it go?" hidden></iframe>
   <div id="none" class="list" hidden>
     <p class="soft">No step planned right now. After a practice, choose one small thing to try for real.</p>
     <a class="hug" href="../new.html">Start a practice</a>
@@ -27,20 +28,24 @@
 <script src="../pen.js"></script>
 <script src="../nav.js"></script>
 <script>
-// body: [action] planned, newest first. Shows the oldest planned step; marking it moves to the next.
-kit.createServer(function(req, res){ NEXT.list = (req.body || []).slice().reverse(); NEXT.draw(); res.send(document) });
+// body: [action] planned, newest first. Shows the oldest planned step; after reflecting on it, the next one.
+kit.createServer(function(req, res){ NEXT.list = (req.body || []).slice().reverse(); how.hidden = true; NEXT.draw(); res.send(document) });
 
 var NEXT = {list: []};
-NEXT.draw = function(a){ a = NEXT.list[0];
-  one.hidden = !a; none.hidden = !!a;
+NEXT.draw = function(a){ a = how.hidden && NEXT.list[0];
+  one.hidden = !a; none.hidden = !how.hidden || !!a;
   a && kit.bind(one, {text: a.text, want: a.want || null, due: a.due ? 'by ' + PEN.date(a.due) : null,
     more: 1 < NEXT.list.length ? '+' + (NEXT.list.length - 1) + ' more planned' : null, err: null});
 };
-NEXT.mark = async function(state, btn){ btn.disabled = true;
-  try{ await API.ask('/actions/' + NEXT.list[0].id, {status: state}, 'PATCH'); NEXT.list.shift(); NEXT.draw() }
-  catch(err){ kit.bind(one, {err: err.message}) }
-  btn.disabled = false;
+NEXT.ask = function(tried, a){ a = NEXT.list[0];
+  how.hidden = false; NEXT.draw();
+  kit.fetch(how, {id: a.id, text: a.text, tried: tried}).catch(function(err){ how.hidden = true; NEXT.draw(); kit.bind(one, {err: err.message}) });
 };
-did.ear('click', function(){ NEXT.mark('done', did) });
-not.ear('click', function(){ NEXT.mark('skipped', not) });
+// The reflection says 'reflect' once it is saved, and again with {back: true} when the person is ready to move on.
+kit.ear('reflect', function(eve){ eve.preventDefault();
+  if(eve.detail && eve.detail.back){ how.hidden = true; return NEXT.draw() }
+  NEXT.list = NEXT.list.filter(function(a){ return a.id !== eve.detail.id });
+});
+did.ear('click', function(){ NEXT.ask(true) });
+not.ear('click', function(){ NEXT.ask(false) });
 </script>

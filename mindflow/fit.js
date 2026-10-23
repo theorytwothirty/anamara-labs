@@ -36,7 +36,12 @@ FIT.frame = function(f, d, r){ d = f.practice; r = f.rehearsal;
 };
 
 FIT.act = function(a){
-  return {id: a.id, text: a.text, want: a.desired_state || '', state: a.status, due: a.due, done: a.done_at, made: a.created_at};
+  var r = a.reflection;
+  return {id: a.id, text: a.text, want: a.desired_state || '', state: a.status, due: a.due, done: a.done_at, made: a.created_at,
+    how: r ? {tried: r.tried, happened: r.happened || '', different: r.different || '', next: r.next_focus || ''} : null};
+};
+FIT.how = function(h){
+  return {tried: !!h.tried, happened: h.happened || null, different: h.different || null, next_focus: h.next || null};
 };
 FIT.deed = function(d){
   return {text: d.text, source_id: d.from || null, due: d.due ? new Date(d.due).toISOString() : null};
