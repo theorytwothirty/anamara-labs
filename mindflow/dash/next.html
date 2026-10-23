@@ -1,0 +1,46 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../gun/kit/web.css"><link rel="stylesheet" href="../app.css">
+<script src="../gun/kit/web.js"></script>
+
+<section class="card list next">
+  <p class="cap">Your next real-world action</p>
+  <div id="one" class="list" hidden>
+    <p name="text" class="say"></p>
+    <span class="line tiny soft"><span name="want" class="tag"></span><span name="due"></span><span name="more" class="grow"></span></span>
+    <div class="line"><button id="did" class="grow big">I did it</button><button id="not" class="grow">Not this time</button></div>
+    <p name="err" class="bad" hidden></p>
+  </div>
+  <div id="none" class="list" hidden>
+    <p class="soft">No step planned right now. After a practice, choose one small thing to try for real.</p>
+    <a class="hug" href="../new.html">Start a practice</a>
+  </div>
+</section>
+
+<style>
+.next { background: linear-gradient(160deg, var(--lilact), var(--card) 70%); }
+</style>
+
+<script src="../gun/kit/dom.js"></script>
+<script src="../env.js"></script>
+<script src="../api.js"></script>
+<script src="../pen.js"></script>
+<script src="../nav.js"></script>
+<script>
+// body: [action] planned, newest first. Shows the oldest planned step; marking it moves to the next.
+kit.createServer(function(req, res){ NEXT.list = (req.body || []).slice().reverse(); NEXT.draw(); res.send(document) });
+
+var NEXT = {list: []};
+NEXT.draw = function(a){ a = NEXT.list[0];
+  one.hidden = !a; none.hidden = !!a;
+  a && kit.bind(one, {text: a.text, want: a.want || null, due: a.due ? 'by ' + PEN.date(a.due) : null,
+    more: 1 < NEXT.list.length ? '+' + (NEXT.list.length - 1) + ' more planned' : null, err: null});
+};
+NEXT.mark = async function(state, btn){ btn.disabled = true;
+  try{ await API.ask('/actions/' + NEXT.list[0].id, {status: state}, 'PATCH'); NEXT.list.shift(); NEXT.draw() }
+  catch(err){ kit.bind(one, {err: err.message}) }
+  btn.disabled = false;
+};
+did.ear('click', function(){ NEXT.mark('done', did) });
+not.ear('click', function(){ NEXT.mark('skipped', not) });
+</script>

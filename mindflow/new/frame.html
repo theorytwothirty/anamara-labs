@@ -28,6 +28,7 @@
     <details class="fold"><summary>Another perspective</summary><p name="turn" class="soft"></p></details>
   </section>
   <iframe id="rehearse" src="frame/rehearse.html" title="Rehearse a different response"></iframe>
+  <iframe id="act" src="frame/act.html" title="One thing you'll do differently"></iframe>
   <iframe id="drill" src="frame/drill.html" title="Somatic practice"></iframe>
   <iframe id="chat" src="frame/chat.html" title="Explore this further"></iframe>
   <p name="fail" class="bad" hidden></p>
@@ -49,7 +50,7 @@ kit.createServer(function(req, res){ res.send(kit.bind(document, {err: null})) }
 var FRAME = {};
 FRAME.fill = function(conv){ FRAME.conv = conv;
   kit.bind(document, {want: conv.want ? 'Showing up: ' + conv.want : null, view: conv.view, aim: conv.aim, turn: conv.turn, fail: null});
-  [rehearse, drill, chat].forEach(function(one){ kit.fetch(one, conv).catch(Boolean) });
+  [rehearse, act, drill, chat].forEach(function(one){ kit.fetch(one, conv).catch(Boolean) });
   FRAME.step(out);
 };
 FRAME.step = function(one){ [form, want, out].forEach(function(el){ el.hidden = el !== one }) };
@@ -76,5 +77,5 @@ chips.all('button').ear('click', function(){ form.issue.value = this.value; form
 make.ear('click', FRAME.make);
 over.ear('click', FRAME.over);
 // The rehearsal, chat and practice parts send back the updated conversation after each change.
-kit.ear('frame', function(eve){ eve.preventDefault(); FRAME.conv = eve.detail });
+kit.ear('frame', function(eve){ eve.preventDefault(); FRAME.conv = eve.detail; kit.fetch(act, FRAME.conv).catch(Boolean) });
 </script>

@@ -1,0 +1,57 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../gun/kit/web.css"><link rel="stylesheet" href="../../app.css">
+<script src="../../gun/kit/web.js"></script>
+
+<section class="card list">
+  <p class="cap">Act</p>
+  <form id="form" class="list">
+    <h2>What's one thing you'll do differently?</h2>
+    <p class="soft">Something small you can actually do, that's up to you, in the next few days.</p>
+    <label>Your step
+      <textarea name="text" required minlength="3" maxlength="300" placeholder="E.g., At Thursday's meeting, share one idea before the discussion ends."></textarea>
+    </label>
+    <label>When? (optional) <input name="due" type="date"></label>
+    <p name="err" class="bad" hidden></p>
+    <button class="big" name="act">Save my step</button>
+    <button type="button" id="later" class="ghost">Not now</button>
+  </form>
+  <div id="saved" class="list" hidden>
+    <h3>Saved.</h3>
+    <p class="say" name="text"></p>
+    <p class="soft">You'll find it on Today. Come back and tell us how it went.</p>
+    <a class="btn hug" href="../../dash.html">Go to Today</a>
+  </div>
+  <div id="away" class="list" hidden>
+    <p class="soft">No problem. You can pick a step any time.</p>
+    <button id="back" class="hug">Choose a step</button>
+  </div>
+</section>
+
+<script src="../../gun/kit/dom.js"></script>
+<script src="../../env.js"></script>
+<script src="../../api.js"></script>
+<script src="../../fit.js"></script>
+<script src="../../nav.js"></script>
+<script>
+// body: a reframe conversation {id, rehearse: null | {act}}. Suggests the rehearsal's step until one is saved.
+kit.createServer(function(req, res){
+  var conv = req.body || {}, fresh = conv.id !== ACT.id;
+  ACT.id = conv.id;
+  if(fresh){ form.reset(); ACT.show(form) }
+  if(!form.hidden && !form.text.value && conv.rehearse){ form.text.value = conv.rehearse.act }
+  res.send(kit.bind(document, {err: null}));
+});
+
+var ACT = {};
+ACT.show = function(one){ [form, saved, away].forEach(function(el){ el.hidden = el !== one }) };
+ACT.send = async function(eve, a){ eve.preventDefault();
+  form.act.disabled = true; kit.bind(document, {err: null});
+  try{ a = FIT.act(await API.ask('/actions', FIT.deed({text: form.text.value, from: ACT.id, due: form.due.value}))); kit.bind(saved, {text: a.text}); ACT.show(saved) }
+  catch(err){ kit.bind(document, {err: err.message}) }
+  form.act.disabled = false;
+};
+form.ear('submit', ACT.send);
+later.ear('click', function(){ ACT.show(away) });
+back.ear('click', function(){ ACT.show(form) });
+</script>

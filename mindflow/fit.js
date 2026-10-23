@@ -35,6 +35,13 @@ FIT.frame = function(f, d, r){ d = f.practice; r = f.rehearsal;
     drill: d ? {title: d.title, steps: d.steps || [], self: d.self_statement} : null, sound: !!f.has_practice_audio};
 };
 
+FIT.act = function(a){
+  return {id: a.id, text: a.text, want: a.desired_state || '', state: a.status, due: a.due, done: a.done_at, made: a.created_at};
+};
+FIT.deed = function(d){
+  return {text: d.text, source_id: d.from || null, due: d.due ? new Date(d.due).toISOString() : null};
+};
+
 FIT.sum = function(s){
   return {count: s.session_count || 0, logs: s.habit_total_logs || 0, rate: s.habit_success_rate, tips: s.insights || [],
     trend: (s.mood_trend || []).map(function(p){ return {at: p.timestamp, kind: 'preMood' === p.data_type ? 'pre' : 'postMood' === p.data_type ? 'post' : 'habit', val: +p.value} })};
