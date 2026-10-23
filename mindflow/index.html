@@ -29,10 +29,13 @@ body.out #bar { display: none; }
 <script src="api.js"></script>
 <script>;(function(){
 var APP = {start: 'dash.html', open: 'home.html sign.html join.html lost.html reset.html verify.html'.split(' ')};
+// Only this app's own pages may load into a frame: a relative path of plain words ending in .html, plus a query.
+APP.safe = /^[a-z0-9]+(\/[a-z0-9]+)*\.html(\?[A-Za-z0-9_.~%=&-]*)?$/;
 
 // path: 'play.html?id=1' or a full URL from a component. Shows that page and asks it to (re)load.
 APP.show = function(path, page, view){
   path = (path || location.hash.slice(1) || APP.start).replace(location.__dirname + '/', '');
+  if(!APP.safe.test(path)){ path = APP.start }
   page = path.split('?')[0];
   if(!API.tok() && APP.open.indexOf(page) < 0){ path = page = 'home.html' }
   if(API.tok() && 'home.html' === page){ path = page = APP.start }
@@ -46,6 +49,11 @@ APP.show = function(path, page, view){
 
 kit.ear('go', function(eve){ eve.preventDefault(); APP.show(eve.detail) });
 document.body.all('#bar a').ear('click', function(eve){ eve.preventDefault(); APP.show(this.getAttribute('href')) });
+// Runs before Kit's own hashchange router (registered later, on DOMContentLoaded) and stops unsafe hashes reaching it.
+window.addEventListener('hashchange', function(eve){
+  if(APP.safe.test(location.hash.slice(1))){ return }
+  eve.stopImmediatePropagation(); history.replaceState(null, '', '#' + (APP.now || APP.start));
+});
 window.addEventListener('hashchange', function(){ setTimeout(function(){
   if(location.hash.slice(1) !== APP.now){ APP.show() }
 }) });
