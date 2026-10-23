@@ -1,0 +1,28 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../gun/kit/web.css"><link rel="stylesheet" href="../app.css">
+<script src="../gun/kit/web.js"></script>
+
+<section class="card list">
+  <p class="cap">Your practice loop</p>
+  <p class="soft tiny">Practice, rehearse, try it for real, notice what changed. Each turn of the loop makes the new response more familiar.</p>
+  <div class="loop">
+    <span><b name="practices" class="num">0</b><span class="soft tiny">practices</span></span>
+    <span><b name="rehearsals" class="num">0</b><span class="soft tiny">rehearsals</span></span>
+    <span><b name="tried" class="num">0</b><span class="soft tiny">steps tried</span></span>
+    <span><b name="noticed" class="num">0</b><span class="soft tiny">reflections</span></span>
+  </div>
+</section>
+
+<style>
+.loop { display: grid; grid-template-columns: repeat(auto-fit, minmax(5.5rem, 1fr)); gap: var(--s3); }
+.loop > span { display: grid; gap: 0; }
+.loop .num { font-size: 1.6rem; }
+</style>
+
+<script>
+// body: {practices, rehearsals, tried, noticed} from FIT.mine.
+kit.createServer(function(req, res, m){ m = req.body || {};
+  res.send(kit.bind(document, {practices: m.practices || 0, rehearsals: m.rehearsals || 0, tried: m.tried || 0, noticed: m.noticed || 0}));
+});
+</script>

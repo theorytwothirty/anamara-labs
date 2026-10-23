@@ -3,7 +3,7 @@
 var FIT = window.FIT = {};
 
 FIT.user = function(u, p){ p = u.preferences || {};
-  return {id: u.id, name: u.name, mail: u.email, ok: u.email_verified ? 'Yes' : 'No', plan: u.subscription_tier,
+  return {id: u.id, name: u.name, mail: u.email, ok: u.email_verified ? 'Yes' : 'No', plan: u.subscription_tier, boss: !!u.is_admin,
     pref: {voice: p.voice_type, len: p.session_length, bg: !!p.background_sounds}};
 };
 FIT.me = function(m){
@@ -45,6 +45,17 @@ FIT.how = function(h){
 };
 FIT.deed = function(d){
   return {text: d.text, source_id: d.from || null, due: d.due ? new Date(d.due).toISOString() : null};
+};
+
+FIT.mine = function(m, a){ a = m.practice_again;
+  return {practices: m.practices, rehearsals: m.rehearsals, tried: m.steps_tried, noticed: m.reflections,
+    again: a ? {focus: a.focus, at: a.at} : null};
+};
+FIT.team = function(t, u, p, r){ u = t.people || {}; p = t.practice || {}; r = t.real_world || {};
+  return {days: t.days, joined: u.signed_up, active: u.active, twice: u.practiced_twice_or_more,
+    frames: p.reframes, began: p.guided_sessions_started, ended: p.guided_sessions_finished, rehearsed: p.rehearsals_finished,
+    passed: p.rehearsals_skipped, rated: p.average_rehearsal_rating, saved: r.steps_saved, tried: r.steps_tried, untried: r.steps_not_tried,
+    noticed: r.reflections, triedrate: r.tried_rate, noticedrate: r.reflection_rate};
 };
 
 FIT.sum = function(s){

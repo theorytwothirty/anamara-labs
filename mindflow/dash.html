@@ -27,6 +27,7 @@
   </div>
 
   <p name="err" class="bad" hidden></p>
+  <iframe id="again" src="dash/again.html" title="Practice again" hidden></iframe>
   <iframe id="next" src="dash/next.html" title="Your next real-world action"></iframe>
   <iframe id="last" src="dash/last.html" title="Continue your practice"></iframe>
   <iframe id="goals" src="dash/goal.html" title="Active goals"></iframe>
@@ -51,6 +52,8 @@
 <script>
 kit.createServer(async function(req, res){
   var all = await DASH.load();
+  again.hidden = !(all.mine && all.mine.again);
+  again.hidden || kit.fetch(again, all.mine.again).catch(Boolean);
   kit.fetch(next, all.act || []).catch(Boolean);
   kit.fetch(last, all.sess).catch(Boolean);
   kit.fetch(goals, all.goal).catch(Boolean);
@@ -60,7 +63,8 @@ kit.createServer(async function(req, res){
 
 var DASH = {};
 // Each part loads on its own, so one failing call still leaves the rest of the page useful.
-DASH.part = {me: ['/users/me', FIT.user], goal: ['/goals', FIT.list(FIT.goal)], sess: ['/sessions', FIT.list(FIT.sess)], sum: ['/progress/summary', FIT.sum], act: ['/actions?status=planned', FIT.list(FIT.act)]};
+DASH.part = {me: ['/users/me', FIT.user], goal: ['/goals', FIT.list(FIT.goal)], sess: ['/sessions', FIT.list(FIT.sess)], sum: ['/progress/summary', FIT.sum], act: ['/actions?status=planned', FIT.list(FIT.act)],
+  mine: ['/insights/me', FIT.mine]};
 DASH.load = async function(all, keys){
   all = {err: null}; keys = Object.keys(DASH.part);
   (await Promise.allSettled(keys.map(function(k){ return API.ask(DASH.part[k][0]) }))).forEach(function(r, i){

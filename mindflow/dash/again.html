@@ -1,0 +1,34 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../gun/kit/web.css"><link rel="stylesheet" href="../app.css">
+<script src="../gun/kit/web.js"></script>
+
+<section class="card list again">
+  <p class="cap">Practice again</p>
+  <p class="soft">Last time, you said you'd like to practice:</p>
+  <p name="focus" class="say"></p>
+  <span name="when" class="tiny soft"></span>
+  <button id="go" class="big hug">Practice this now</button>
+</section>
+
+<style>
+.again { background: linear-gradient(160deg, var(--roset), var(--card) 70%); }
+.again .cap { color: var(--rose); }
+</style>
+
+<script src="../gun/kit/dom.js"></script>
+<script src="../pen.js"></script>
+<script src="../nav.js"></script>
+<script>
+// body: {focus, at}. Repetition is how a new response becomes familiar, so this offers to practice it again.
+kit.createServer(function(req, res){ AGAIN.it = req.body || {};
+  res.send(kit.bind(document, {focus: AGAIN.it.focus, when: AGAIN.it.at ? 'You noted this ' + PEN.ago(AGAIN.it.at) : null}));
+});
+
+var AGAIN = {};
+// The practice page picks this up once; it never goes in the address, so it stays out of history.
+go.ear('click', function(){
+  try{ sessionStorage.again = "I'd like to practice: " + AGAIN.it.focus }catch(err){}
+  NAV.go('../new.html?tab=frame');
+});
+</script>

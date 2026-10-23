@@ -22,8 +22,11 @@
 <script src="nav.js"></script>
 <script>
 // body: {tab: 'frame' | 'deep'} picks a tab; otherwise the current one stays, with any work in progress.
-kit.createServer(function(req, res){
+// A "practice again" from Today leaves its focus in sessionStorage.again, to start the situation with.
+kit.createServer(function(req, res, seed){
   (req.body || {}).tab && NEW.pick((req.body || {}).tab);
+  try{ seed = sessionStorage.again; sessionStorage.removeItem('again') }catch(err){}
+  seed && kit.fetch(frame, {issue: seed}).catch(Boolean);
   res.send(document);
 });
 
