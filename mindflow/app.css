@@ -124,3 +124,13 @@ label > * { font-size: var(--t4); font-weight: 400; color: var(--ink); }
 .warn { border-color: #efc9c4; }
 .risk { color: var(--err); }
 .round { width: var(--tap); padding: 0; border-radius: 50%; }
+/* selection cards: a grid of choices, one may be pressed */
+.picks { display: grid; gap: var(--s3); grid-template-columns: repeat(auto-fit, minmax(min(100%, 7.5rem), 1fr)); }
+.pick { min-height: 64px; border-radius: var(--r2); display: grid; gap: 2px; place-content: center; text-align: center; }
+.pick small { font-weight: 400; color: var(--mute); font-size: var(--t5); }
+.pick[aria-pressed="true"] { border-color: var(--rose); background: var(--roset); color: var(--rosed); box-shadow: 0 0 0 2px var(--roset); }
+.chip[aria-pressed="true"] { color: var(--rosed); background: var(--roset); }
+progress { width: 100%; height: 6px; border: 0; border-radius: 999px; background: var(--wash); accent-color: var(--rose); appearance: none; overflow: hidden; }
+progress::-webkit-progress-bar { background: var(--wash); }
+progress::-webkit-progress-value { background: linear-gradient(90deg, var(--rose), var(--lilac)); border-radius: 999px; }
+progress::-moz-progress-bar { background: linear-gradient(90deg, var(--rose), var(--lilac)); }

@@ -1,0 +1,40 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../gun/kit/web.css"><link rel="stylesheet" href="../../app.css">
+<script src="../../gun/kit/web.js"></script>
+
+<form id="form" class="card list">
+  <p class="cap">Step 2 of 3</p>
+  <h2>How would you like to show up?</h2>
+  <p class="soft">Pick a quality, or describe it in your own words.</p>
+  <div id="picks" class="picks">
+    <button type="button" class="pick" value="confident">Confident<small>trust yourself</small></button>
+    <button type="button" class="pick" value="calm">Calm<small>steady inside</small></button>
+    <button type="button" class="pick" value="courageous">Courageous<small>act despite fear</small></button>
+    <button type="button" class="pick" value="assertive">Assertive<small>say what you need</small></button>
+    <button type="button" class="pick" value="focused">Focused<small>one thing at a time</small></button>
+    <button type="button" class="pick" value="grounded">Grounded<small>present, in your body</small></button>
+  </div>
+  <label>Or in your own words (optional)
+    <input name="own" maxlength="200" placeholder="E.g., I want to feel calm and speak clearly">
+  </label>
+  <button class="big" name="act">Find a new perspective</button>
+  <button type="button" id="back" class="ghost">Back</button>
+</form>
+
+<script src="../../gun/kit/dom.js"></script>
+<script src="../../env.js"></script>
+<script>
+// No body. Says 'want' with {state} (may be '') when the person continues, or {back: true}.
+kit.createServer(function(req, res){ form.reset(); WANT.pick(''); res.send(document) });
+
+var WANT = {};
+WANT.pick = function(value){ WANT.now = value;
+  picks.all('button').forEach(function(b){ b.setAttribute('aria-pressed', b.value === value) });
+};
+// A chosen quality and own words combine, e.g. "calm · speak clearly".
+WANT.state = function(own){ own = form.own.value.trim(); return [WANT.now, own].filter(Boolean).join(' · ') };
+picks.all('button').ear('click', function(){ WANT.pick(WANT.now === this.value ? '' : this.value) });
+form.ear('submit', function(eve){ eve.preventDefault(); kit.say({state: WANT.state()}, 'want') });
+back.ear('click', function(){ kit.say({back: true}, 'want') });
+</script>

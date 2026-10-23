@@ -1,0 +1,65 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../gun/kit/web.css"><link rel="stylesheet" href="../../app.css">
+<script src="../../gun/kit/web.js"></script>
+
+<section class="card list">
+  <p class="cap">Rehearse</p>
+  <div id="intro" class="list">
+    <h2>Let's practice a different response.</h2>
+    <p class="soft">A two-minute guided rehearsal: imagine yourself in this situation, responding the way you'd like.</p>
+    <button id="start" class="big">Start a rehearsal</button>
+  </div>
+  <div id="walk" class="list" hidden>
+    <h3 name="title"></h3>
+    <span class="line tiny soft"><span class="grow">Step <b name="at">1</b> of <b name="of">1</b></span></span>
+    <progress id="fill" max="1" value="0" aria-hidden="true"></progress>
+    <p name="step" class="say" aria-live="polite"></p>
+    <div class="line"><button id="prev" class="grow">Back</button><button id="next" class="grow big">Next</button></div>
+  </div>
+  <form id="rate" class="list" hidden>
+    <h3>How useful was this?</h3>
+    <div id="stars" class="line"><button type="button" class="grow chip" value="1">1★</button><button type="button" class="grow chip" value="2">2★</button><button type="button" class="grow chip" value="3">3★</button><button type="button" class="grow chip" value="4">4★</button><button type="button" class="grow chip" value="5">5★</button></div>
+    <button class="big" name="act">Done</button>
+  </form>
+  <div id="done" class="list" hidden>
+    <h3>Nicely done.</h3>
+    <p class="soft">One small thing you could try for real:</p>
+    <p name="act" class="say"></p>
+    <button id="again">Rehearse again</button>
+  </div>
+  <p name="err" class="bad" hidden></p>
+  <button id="skip" class="ghost" hidden>Skip for now</button>
+</section>
+
+<script src="../../gun/kit/dom.js"></script>
+<script src="../../env.js"></script>
+<script src="../../api.js"></script>
+<script src="../../fit.js"></script>
+<script>
+// body: a reframe conversation {id, rehearse: null | {title, steps, act}, rehearsed}. Says 'frame' after changes.
+kit.createServer(function(req, res){ REH.conv = req.body; REH.show(REH.conv.rehearsed ? done : REH.conv.rehearse ? walk : intro); res.send(document) });
+
+var REH = {at: 0, n: 0};
+REH.show = function(one, r){ r = REH.conv.rehearse || {};
+  [intro, walk, rate, done].forEach(function(el){ el.hidden = el !== one }); skip.hidden = !(walk === one || rate === one);
+  kit.bind(document, {err: null, title: r.title || '', act: r.act || ''}); walk === one && REH.go(0);
+};
+REH.go = function(i, s){ s = REH.conv.rehearse.steps; REH.at = Math.max(0, Math.min(i, s.length - 1));
+  kit.bind(walk, {step: s[REH.at], at: REH.at + 1, of: s.length}); fill.value = (REH.at + 1) / s.length;
+  prev.disabled = !REH.at; next.textContent = REH.at === s.length - 1 ? 'Finish' : 'Next';
+};
+REH.ask = async function(path, body, then, btn){ btn.disabled = true; kit.bind(document, {err: null});
+  try{ REH.conv = FIT.frame(await API.ask('/reframes/' + REH.conv.id + path, body)); kit.say(REH.conv, 'frame'); REH.show(then) }
+  catch(err){ kit.bind(document, {err: err.message}) }
+  btn.disabled = false;
+};
+REH.pick = function(n){ REH.n = n; stars.all('button').forEach(function(b){ b.setAttribute('aria-pressed', +b.value <= n) }) };
+stars.all('button').ear('click', function(){ REH.pick(+this.value) });
+start.ear('click', function(){ REH.ask('/rehearsal', {}, walk, start) });
+again.ear('click', function(){ REH.show(walk) });
+prev.ear('click', function(){ REH.go(REH.at - 1) });
+next.ear('click', function(){ REH.at === REH.conv.rehearse.steps.length - 1 ? (REH.pick(0), REH.show(rate)) : REH.go(REH.at + 1) });
+rate.ear('submit', function(eve){ eve.preventDefault(); REH.ask('/rehearsal/complete', {rating: REH.n || null}, done, rate.act) });
+skip.ear('click', function(){ REH.ask('/rehearsal/complete', {skipped: true}, intro, skip) });
+</script>

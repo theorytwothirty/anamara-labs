@@ -4,6 +4,7 @@
 <script src="../gun/kit/web.js"></script>
 
 <form id="form" class="card list">
+  <p class="cap">Step 1 of 3</p>
   <label>Your situation
     <textarea name="issue" required minlength="10" maxlength="1000" placeholder="E.g., I keep putting off important conversations because I'm afraid of conflict…"></textarea>
   </label>
@@ -14,18 +15,21 @@
     <button type="button" class="chip" value="I put off important work, then feel bad about it.">Putting things off</button>
   </div>
   <p name="err" class="bad" hidden></p>
-  <button class="big" name="act">Find a new perspective</button>
+  <button class="big" name="act">Continue</button>
 </form>
+<iframe id="want" src="frame/want.html" title="How would you like to show up?" hidden></iframe>
 
 <div id="out" class="flow" hidden>
   <section class="card list">
     <p class="cap">A different way to see this</p>
+    <p name="want" class="tag hug" hidden></p>
     <p name="view" class="say"></p>
     <details class="fold"><summary>What this may be protecting</summary><p name="aim" class="soft"></p></details>
     <details class="fold"><summary>Another perspective</summary><p name="turn" class="soft"></p></details>
   </section>
-  <iframe id="chat" src="frame/chat.html" title="Explore this further"></iframe>
+  <iframe id="rehearse" src="frame/rehearse.html" title="Rehearse a different response"></iframe>
   <iframe id="drill" src="frame/drill.html" title="Somatic practice"></iframe>
+  <iframe id="chat" src="frame/chat.html" title="Explore this further"></iframe>
   <p name="fail" class="bad" hidden></p>
   <div class="list">
     <button id="make" class="big">Create a guided audio for this</button>
@@ -44,15 +48,19 @@ kit.createServer(function(req, res){ res.send(kit.bind(document, {err: null})) }
 
 var FRAME = {};
 FRAME.fill = function(conv){ FRAME.conv = conv;
-  kit.bind(document, {view: conv.view, aim: conv.aim, turn: conv.turn, fail: null});
-  kit.fetch(chat, conv).catch(Boolean); kit.fetch(drill, conv).catch(Boolean);
-  form.hidden = true; out.hidden = false;
+  kit.bind(document, {want: conv.want ? 'Showing up: ' + conv.want : null, view: conv.view, aim: conv.aim, turn: conv.turn, fail: null});
+  [rehearse, drill, chat].forEach(function(one){ kit.fetch(one, conv).catch(Boolean) });
+  FRAME.step(out);
 };
-FRAME.send = async function(eve){ eve.preventDefault();
-  kit.bind(document, {err: null, act: 'Finding a new perspective…'}); form.act.disabled = true;
-  try{ FRAME.fill(FIT.frame(await API.ask('/reframes', {problem: form.issue.value}))) }
+FRAME.step = function(one){ [form, want, out].forEach(function(el){ el.hidden = el !== one }) };
+FRAME.next = function(eve){ eve.preventDefault(); FRAME.step(want); kit.fetch(want, {}).catch(Boolean) };
+// The 'want' part answers with the quality chosen (step 2); then the reframe is created with it.
+FRAME.send = async function(eve, w){ eve.preventDefault(); w = eve.detail || {};
+  if(w.back){ return FRAME.step(form) }
+  FRAME.step(form); kit.bind(document, {err: null, act: 'Finding a new perspective…'}); form.act.disabled = true;
+  try{ FRAME.fill(FIT.frame(await API.ask('/reframes', {problem: form.issue.value, desired_state: w.state || null}))) }
   catch(err){ kit.bind(document, {err: err.message}) }
-  kit.bind(document, {act: 'Find a new perspective'}); form.act.disabled = false;
+  kit.bind(document, {act: 'Continue'}); form.act.disabled = false;
 };
 FRAME.make = async function(){
   kit.bind(document, {fail: null}); make.disabled = true;
@@ -60,12 +68,13 @@ FRAME.make = async function(){
   catch(err){ kit.bind(document, {fail: err.message}) }
   make.disabled = false;
 };
-FRAME.over = function(){ FRAME.conv = null; form.reset(); out.hidden = true; form.hidden = false };
+FRAME.over = function(){ FRAME.conv = null; form.reset(); FRAME.step(form) };
 
-form.ear('submit', FRAME.send);
+form.ear('submit', FRAME.next);
+kit.ear('want', FRAME.send);
 chips.all('button').ear('click', function(){ form.issue.value = this.value; form.issue.focus() });
 make.ear('click', FRAME.make);
 over.ear('click', FRAME.over);
-// The chat and practice parts send back the updated conversation after each change.
+// The rehearsal, chat and practice parts send back the updated conversation after each change.
 kit.ear('frame', function(eve){ eve.preventDefault(); FRAME.conv = eve.detail });
 </script>

@@ -24,11 +24,13 @@ FIT.sess = function(s){
 
 // An assessment is the question form behind every hypnosis session.
 FIT.ask = function(a){
-  return {specific_issue: a.issue, current_mood: +a.mood || 5, environment: a.place || null, emotional_state: a.feel || null};
+  return {specific_issue: a.issue, current_mood: +a.mood || 5, environment: a.place || null, emotional_state: a.feel || null, desired_state: a.want || null};
 };
 
-FIT.frame = function(f, d){ d = f.practice;
-  return {id: f.id, issue: f.problem, view: f.reframe, aim: f.positive_intention, turn: f.new_perspective,
+FIT.frame = function(f, d, r){ d = f.practice; r = f.rehearsal;
+  return {id: f.id, issue: f.problem, want: f.desired_state || '', view: f.reframe, aim: f.positive_intention, turn: f.new_perspective,
+    rehearse: r ? {title: r.title, steps: r.steps || [], act: r.suggested_action} : null,
+    rehearsed: !!f.rehearsal_completed, skipped: !!f.rehearsal_skipped, rated: f.rehearsal_rating || null,
     msgs: (f.messages || []).map(function(m){ return {who: 'user' === m.role ? 'me' : 'guide', text: m.content} }),
     drill: d ? {title: d.title, steps: d.steps || [], self: d.self_statement} : null, sound: !!f.has_practice_audio};
 };
