@@ -1,0 +1,31 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../gun/kit/web.css"><link rel="stylesheet" href="../app.css">
+<script src="../gun/kit/web.js"></script>
+
+<section class="card list">
+  <p class="cap">Email</p>
+  <p class="soft">Sign-up, password-reset and weekly emails go out through Resend. Send one to yourself to check it works.</p>
+  <button id="send" class="hug">Send me a test email</button>
+  <p name="sent" class="good" hidden></p>
+  <p name="problem" class="bad" hidden></p>
+</section>
+
+<script src="../gun/kit/dom.js"></script>
+<script src="../env.js"></script>
+<script src="../api.js"></script>
+<script>
+// No body needed. Shows what Resend said, so a missing key or unverified sender is plain to see.
+kit.createServer(function(req, res){ res.send(document) });
+
+var MAIL = {};
+MAIL.send = async function(r){
+  send.disabled = true; kit.bind(document, {sent: null, problem: null});
+  try{
+    r = await API.ask('/insights/team/test-email', {});
+    kit.bind(document, r.sent ? {sent: 'Sent to ' + r.to + ' from ' + r.from + '. Check your inbox (and spam).'} : {problem: 'Not sent: ' + r.problem});
+  }catch(err){ kit.bind(document, {problem: err.message}) }
+  send.disabled = false;
+};
+send.ear('click', MAIL.send);
+</script>

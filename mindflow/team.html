@@ -31,6 +31,7 @@
     <p class="line"><span class="grow">Tried when they came back</span><b name="triedrate">–</b></p>
     <p class="line"><span class="grow">Reflected when they came back</span><b name="noticedrate">–</b></p>
   </section>
+  <iframe id="mail" src="team/mail.html" title="Email"></iframe>
 </div>
 
 <script src="gun/kit/dom.js"></script>
@@ -40,7 +41,7 @@
 <script src="nav.js"></script>
 <script>
 // body: {days} from the address (7, 30 or 90); 30 by default. Only the emails in the backend's ADMIN_EMAILS can load it.
-kit.createServer(async function(req, res){ res.send(document); await TEAM.load(+(req.body || {}).days || 30) });
+kit.createServer(async function(req, res){ res.send(document); kit.fetch(mail, {}).catch(Boolean); await TEAM.load(+(req.body || {}).days || 30) });
 
 var TEAM = {};
 TEAM.pct = function(n){ return null == n ? '–' : Math.round(n * 100) + '%' };
