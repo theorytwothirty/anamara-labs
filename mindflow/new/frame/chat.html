@@ -3,20 +3,24 @@
 <link rel="stylesheet" href="../../gun/kit/web.css"><link rel="stylesheet" href="../../app.css">
 <script src="../../gun/kit/web.js"></script>
 
-<div class="card list">
+<section class="card list">
+  <p class="cap">Explore this further</p>
   <h3>How does this land?</h3>
-  <div id="box" class="list"></div>
+  <p class="soft tiny">Say what fits, what doesn't, or what you'd like to look at next.</p>
+  <div id="box" class="list" aria-live="polite"></div>
   <form id="form" class="line">
-    <input name="text" class="grow" required maxlength="1000" placeholder="Tell me how this resonates, or what's still not landing…">
+    <input name="text" class="grow" required maxlength="1000" placeholder="Tell me how this resonates…" aria-label="Your reply">
     <button class="big" name="act">Send</button>
   </form>
   <p name="err" class="bad" hidden></p>
-</div>
+</section>
 <template id="row"><div class="say"><span name="text"></span></div></template>
 
 <style>
-.say { padding: 0.6em 0.9em; border-radius: 1em; background: var(--glass); max-width: 85%; justify-self: start; }
-.say.me { justify-self: end; background: rgba(190,18,60,0.25); font-size: 0.9em; }
+#box .say { font-family: var(--font); font-size: var(--t4); line-height: 1.5; padding: var(--s3) var(--s4); border-radius: var(--r2) var(--r2) var(--r2) 4px; background: var(--lilact); max-width: 88%; justify-self: start; }
+#box .say.me { justify-self: end; border-radius: var(--r2) var(--r2) 4px var(--r2); background: var(--roset); }
+#form input { flex: 1 1 12em; border-radius: 999px; }
+#form button { flex: 0 0 auto; }
 </style>
 
 <script src="../../gun/kit/dom.js"></script>

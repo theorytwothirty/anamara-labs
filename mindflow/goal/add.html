@@ -4,16 +4,21 @@
 <script src="../gun/kit/web.js"></script>
 
 <form id="form" class="card list">
-  <label>Goal type
-    <input name="kind" required minlength="2" maxlength="50" placeholder="E.g., Relationships, Habit, Career, Confidence…">
+  <h3>Start a journey</h3>
+  <label>What would you like to grow?
+    <input name="kind" required minlength="2" maxlength="50" placeholder="E.g., Confidence, Calm, Courage…">
   </label>
-  <label>How will you know you've reached this goal?
+  <div id="chips" class="line" aria-label="Examples">
+    <button type="button" class="chip">Confidence</button><button type="button" class="chip">Calm</button>
+    <button type="button" class="chip">Courage</button><button type="button" class="chip">Focus</button><button type="button" class="chip">Assertiveness</button>
+  </div>
+  <label>How will you know you've grown into it?
     <textarea name="text" required minlength="10" maxlength="200" placeholder="E.g., I can raise a hard topic with my partner without putting it off for days"></textarea>
   </label>
   <span class="soft tiny"><span name="size">0</span>/200 characters (min 10)</span>
   <label>Target date (optional) <input name="due" type="date"></label>
   <p name="err" class="bad" hidden></p>
-  <button class="big" name="act">Create goal</button>
+  <button class="big" name="act">Start this journey</button>
 </form>
 
 <script src="../gun/kit/dom.js"></script>
@@ -35,4 +40,5 @@ ADD.send = async function(eve){ eve.preventDefault();
 };
 form.ear('submit', ADD.send);
 form.text.ear('input', function(){ kit.bind(document, {size: form.text.value.length}) });
+chips.all('button').ear('click', function(){ form.kind.value = this.textContent; form.text.focus() });
 </script>

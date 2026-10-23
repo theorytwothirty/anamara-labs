@@ -1,27 +1,28 @@
 <!doctype html>
 <meta charset="utf-8">
 <link rel="stylesheet" href="../gun/kit/web.css"><link rel="stylesheet" href="../app.css">
-<script src="../gun/kit/web.js"></script>
+<script src="../gun/kit/web.js"></script><script src="../env.js"></script>
 
-<div class="card list">
-  <h3>Mood trend</h3>
-  <p id="none" class="soft">Log your mood before and after sessions to see trends here.</p>
+<section class="card list">
+  <p class="cap">How you've been feeling</p>
+  <p class="soft tiny">The mood you noted before and after sessions, averaged per day. Moods shift for many reasons, so read this as a rough picture, not a score.</p>
+  <p id="none" class="empty">Your mood ratings will appear here once you've noted some.</p>
   <div id="plot" class="list" hidden>
     <svg viewBox="0 0 300 120" role="img" aria-label="Average mood per day, before and after sessions">
       <line x1="0" y1="10" x2="300" y2="10"/><line x1="0" y1="60" x2="300" y2="60"/><line x1="0" y1="110" x2="300" y2="110"/>
       <polyline id="pre"/><polyline id="post"/>
     </svg>
     <div class="line tiny soft"><span name="from" class="grow"></span><span name="to"></span></div>
-    <div class="line tiny"><span class="key pre">Before session</span><span class="key post">After session</span><span class="soft grow">Scale 1-10</span></div>
+    <div class="line tiny"><span class="key pre">Before</span><span class="key post">After</span><span class="soft grow">1 low · 10 high</span></div>
   </div>
-</div>
+</section>
 
 <style>
 svg { width: 100%; height: auto; overflow: visible; }
 line { stroke: var(--line); stroke-dasharray: 3 3; }
 polyline { fill: none; stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
-#pre, .key.pre::before { stroke: #818cf8; background: #818cf8; }
-#post, .key.post::before { stroke: #2dd4bf; background: #2dd4bf; }
+#pre, .key.pre::before { stroke: var(--lilac); background: var(--lilac); }
+#post, .key.post::before { stroke: var(--rose); background: var(--rose); }
 .key::before { content: ""; display: inline-block; width: 0.8em; height: 0.8em; margin-right: 0.3em; border-radius: 50%; }
 </style>
 

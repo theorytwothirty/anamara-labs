@@ -1,17 +1,23 @@
 <!doctype html>
 <meta charset="utf-8">
 <link rel="stylesheet" href="../gun/kit/web.css"><link rel="stylesheet" href="../app.css">
-<script src="../gun/kit/web.js"></script>
+<script src="../gun/kit/web.js"></script><script src="../env.js"></script>
 
-<a class="card list" href="../mood.html">
-  <h3>This week</h3>
-  <div class="line">
-    <div class="grow"><div name="count" class="num">0</div><div class="soft tiny">Sessions completed</div></div>
-    <div class="grow"><div name="lift" class="num">--</div><div class="soft tiny">Mood change</div></div>
-    <div class="grow"><div name="time" class="num">0m</div><div class="soft tiny">Total time</div></div>
+<a class="card list week" href="../mood.html">
+  <div class="line"><h3 class="grow">This week</h3><span class="tiny link">Progress</span></div>
+  <div class="line stats">
+    <span class="grow"><b name="count" class="num">0</b><span class="soft tiny">practices</span></span>
+    <span class="grow"><b name="time" class="num">0m</b><span class="soft tiny">practiced</span></span>
+    <span class="grow"><b name="lift" class="num">–</b><span class="soft tiny">mood after vs before</span></span>
   </div>
-  <span class="tiny">See all progress</span>
 </a>
+
+<style>
+.week { color: var(--ink); }
+.link { color: var(--rose); }
+.stats > span { display: grid; gap: 0; }
+.stats .num { font-size: 1.6rem; }
+</style>
 
 <script src="../nav.js"></script>
 <script>
@@ -33,7 +39,7 @@ WEEK.avg = function(list, kind, v){
 };
 WEEK.lift = function(list, pre, post, d){
   pre = WEEK.avg(list, 'pre'); post = WEEK.avg(list, 'post');
-  if(null === pre || null === post){ return '--' }
+  if(null === pre || null === post){ return '–' }
   d = post - pre; return (0 <= d ? '+' : '') + d.toFixed(1);
 };
 </script>

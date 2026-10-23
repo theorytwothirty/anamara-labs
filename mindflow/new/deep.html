@@ -4,27 +4,38 @@
 <script src="../gun/kit/web.js"></script>
 
 <form id="form" class="card list">
-  <label>What problem are you facing?
+  <p class="soft tiny">A personalized guided audio (hypnosis) to rehearse feeling and responding the way you'd like. It takes 1–2 minutes to create.</p>
+  <label>Your situation
     <textarea name="issue" required minlength="10" maxlength="1000" placeholder="E.g., I get very anxious before team presentations and my mind goes blank…"></textarea>
   </label>
-  <label>How are you feeling right now? <b name="show">5</b>
+  <div id="chips" class="line" aria-label="Examples">
+    <button type="button" class="chip" value="I want to feel confident and steady when I present to my team.">Confidence</button>
+    <button type="button" class="chip" value="I want to stay calm when someone criticizes my work.">Calm</button>
+    <button type="button" class="chip" value="I want the courage to ask for what I need.">Courage</button>
+    <button type="button" class="chip" value="I want to focus on deep work without drifting to my phone.">Focus</button>
+  </div>
+  <label><span class="line"><span class="grow">How do you feel right now?</span><b name="show" class="tag">5</b></span>
     <input name="mood" type="range" min="1" max="10" value="5">
-    <span class="line tiny soft"><span class="grow">1 · Stressed</span><span>10 · Calm</span></span>
+    <span class="line tiny soft"><span class="grow">Stressed</span><span>Calm</span></span>
   </label>
-  <label>Where are you right now? (optional)
-    <select name="place">
-      <option value="">Choose a place…</option>
-      <option value="home_quiet">At home, quiet room</option>
-      <option value="office">At the office</option>
-      <option value="commute">Commuting / traveling</option>
-      <option value="bed">In bed, ready for sleep</option>
-    </select>
-  </label>
-  <label>What emotion is driving this? (optional)
-    <input name="feel" maxlength="200" placeholder="E.g., fear of failure, overwhelm, boredom…">
-  </label>
+  <details class="fold"><summary>Add more detail (optional)</summary>
+    <div class="list">
+      <label>Where will you listen?
+        <select name="place">
+          <option value="">Choose a place…</option>
+          <option value="home_quiet">At home, quiet room</option>
+          <option value="office">At the office</option>
+          <option value="commute">Commuting / traveling</option>
+          <option value="bed">In bed, ready for sleep</option>
+        </select>
+      </label>
+      <label>What emotion is driving this?
+        <input name="feel" maxlength="200" placeholder="E.g., fear of failure, overwhelm, boredom…">
+      </label>
+    </div>
+  </details>
   <p name="err" class="bad" hidden></p>
-  <button class="big" name="act">Generate my session</button>
+  <button class="big" name="act">Create my guided audio</button>
 </form>
 
 <script src="../gun/kit/dom.js"></script>
@@ -46,4 +57,5 @@ DEEP.send = async function(eve){ eve.preventDefault();
 DEEP.show = function(){ kit.bind(document, {show: form.mood.value}) };
 form.ear('submit', DEEP.send);
 form.mood.ear('input', DEEP.show);
+chips.all('button').ear('click', function(){ form.issue.value = this.value; form.issue.focus() });
 </script>

@@ -4,31 +4,45 @@
 <link rel="stylesheet" href="gun/kit/web.css"><link rel="stylesheet" href="app.css">
 <script src="gun/kit/web.js"></script>
 
-<div class="pad list">
-  <h1>Library</h1>
-  <p class="soft">Your generated hypnosis sessions.</p>
+<div class="pad flow">
+  <header class="list">
+    <p class="cap">Library</p>
+    <h1>Your practices</h1>
+    <p class="lead">Every guided audio you've made, ready when you want to return to it.</p>
+  </header>
   <form id="form" class="line">
     <input name="find" type="search" class="grow" placeholder="Search by title…" aria-label="Search">
     <select name="state" class="grow" aria-label="Status">
       <option value="">All statuses</option>
       <option value="ready">Ready</option>
-      <option value="generating">Generating</option>
-      <option value="pending">Pending</option>
-      <option value="failed">Failed</option>
+      <option value="generating">Being created</option>
+      <option value="pending">Waiting</option>
+      <option value="failed">Didn't finish</option>
     </select>
   </form>
   <p name="err" class="bad" hidden></p>
   <p name="load" class="soft wait" hidden>Loading…</p>
-  <div id="none" class="card list" hidden><p class="soft">No sessions found.</p><a href="new.html">Start a reframe</a></div>
+  <div id="none" class="empty list" hidden><p>Nothing here yet. Your guided audios will appear here.</p><a href="new.html?tab=deep">Create your first one</a></div>
   <div id="box" class="list"></div>
 </div>
 <template id="row">
-  <div class="card list">
-    <a class="list"><span class="line"><h3 name="title" class="grow"></h3><span name="state" class="tag"></span></span>
-      <span name="when" class="soft tiny"></span><span name="stars" class="tiny"></span></a>
-    <button class="hug tiny">Delete</button>
-  </div>
+  <article class="card list sess">
+    <span class="line tiny soft"><span name="kind" class="tag"></span><span name="state" class="tag"></span><span name="when" class="grow"></span></span>
+    <h3 name="title"></h3>
+    <span name="stars" class="tiny gold"></span>
+    <div class="line"><a class="btn" name="go"></a><button class="ghost risk tiny">Delete</button></div>
+  </article>
 </template>
+
+<style>
+.sess .tag { text-transform: none; }
+.sess .tag[name=state] { background: var(--lilact); color: var(--lilac); }
+.sess.failed .tag[name=state] { background: #fbe9e7; color: var(--err); }
+.sess.ready .tag[name=state] { background: #e6f2ec; color: var(--ok); }
+.gold { color: #d99a2b; letter-spacing: 2px; }
+.sess .btn { flex: 0 1 auto; padding-inline: var(--s6); }
+.sess .ghost { margin-left: auto; }
+</style>
 
 <script src="gun/kit/dom.js"></script>
 <script src="env.js"></script>
@@ -41,7 +55,7 @@
 // No body needed: every show reloads with the current search and status.
 kit.createServer(async function(req, res){ await SHELF.load(); res.send(document) });
 
-var SHELF = {};
+var SHELF = {say: {ready: 'Ready', generating: 'Being created', pending: 'Waiting', failed: "Didn't finish"}};
 SHELF.load = async function(f, q, list){
   f = Object.fromEntries(new FormData(form)); q = new URLSearchParams();
   f.find && q.set('search', f.find); f.state && q.set('status_filter', f.state);
@@ -52,11 +66,13 @@ SHELF.load = async function(f, q, list){
   ROW.fill(box, row, list.map(SHELF.item), SHELF.wire);
   kit.bind(document, {load: null});
 };
-SHELF.item = function(s){
-  return {id: s.id, title: s.title, state: s.state, stars: PEN.star(s.stars) || null, when: PEN.date(s.done || s.made) + ('ready' === s.state ? ' · ' + s.len + ' min' : '')};
+SHELF.item = function(s, ok){ ok = 'ready' === s.state;
+  return {id: s.id, title: s.title, kind: 'Guided audio', state: ok && s.done ? 'Completed' : SHELF.say[s.state] || s.state, raw: s.state,
+    stars: PEN.star(s.stars) || null, when: PEN.date(s.done || s.made) + (ok ? ' · ' + s.len + ' min' : ''), go: ok ? (s.done ? 'Replay' : 'Play') : 'Open'};
 };
 // Delete asks for a second tap instead of a popup.
 SHELF.wire = function(el, s, i, del){
+  el.tag(s.raw, 1);
   el.all('a')[0].href = 'play.html?id=' + encodeURIComponent(s.id);
   del = el.all('button')[0];
   del.ear('click', async function(){

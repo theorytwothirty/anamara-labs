@@ -1,19 +1,19 @@
 <!doctype html>
 <meta charset="utf-8">
-<title>Generating · MindFlow</title>
+<title>Creating your practice · MindFlow</title>
 <link rel="stylesheet" href="gun/kit/web.css"><link rel="stylesheet" href="app.css">
-<script src="gun/kit/web.js"></script>
+<script src="gun/kit/web.js"></script><script src="env.js"></script>
 
-<div class="pad list calm">
-  <div class="orb wait"></div>
-  <h1>Generating your session</h1>
-  <p name="say" class="loud"></p>
-  <p class="soft">This usually takes 1-2 minutes · <span name="secs">0</span>s elapsed</p>
+<div class="pad slim flow calm">
+  <div class="orb run" aria-hidden="true"></div>
+  <header class="list">
+    <p class="cap">Creating your practice</p>
+    <h2 name="say" aria-live="polite"></h2>
+  </header>
+  <div class="bar" role="progressbar" aria-label="Progress"><i id="fill"></i></div>
+  <p class="soft tiny">Usually 1–2 minutes · <span name="secs">0</span>s</p>
+  <p class="lead">While you wait, let your shoulders drop and take a few slow breaths.</p>
 </div>
-
-<style>
-.orb { width: 7em; height: 7em; margin: 2em auto; border-radius: 50%; background: radial-gradient(circle, var(--hue), var(--deep) 60%, transparent 70%); box-shadow: 0 0 3em var(--glow); }
-</style>
 
 <script>
 // No body. Every request restarts the clock; there is no server progress, so stages follow elapsed time.
@@ -23,11 +23,13 @@ kit.createServer(function(req, res){
 });
 
 var WAIT = {};
-WAIT.stage = [[0, 'Analyzing what you shared…'], [15, 'Crafting your personalized metaphor…'],
+WAIT.stage = [[0, 'Listening to what you shared…'], [15, 'Crafting your personal metaphor…'],
   [40, 'Weaving in Ericksonian and NLP language patterns…'], [70, 'Recording your session audio…'], [100, 'Almost ready, finishing touches…']];
 WAIT.draw = function(secs, say){
   secs = Math.floor((Date.now() - WAIT.from) / 1000);
   WAIT.stage.forEach(function(s){ if(s[0] <= secs){ say = s[1] } });
+  // An honest-looking bar: it eases toward the end but never claims to be done.
+  fill.style.width = Math.round(95 * (1 - Math.exp(-secs / 45))) + '%';
   return kit.bind(document, {secs: secs, say: say});
 };
 </script>

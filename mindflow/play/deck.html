@@ -1,37 +1,42 @@
 <!doctype html>
 <meta charset="utf-8">
 <link rel="stylesheet" href="../gun/kit/web.css"><link rel="stylesheet" href="../app.css">
-<script src="../gun/kit/web.js"></script>
+<script src="../gun/kit/web.js"></script><script src="../env.js"></script>
 
-<div class="card list calm">
-  <div id="orb" class="orb"></div>
+<section class="card list calm">
+  <div id="orb" class="orb" aria-hidden="true"></div>
+  <p class="cap">Guided audio</p>
   <h2 name="title"></h2>
-  <p class="soft tiny">AI-generated session</p>
   <p name="none" class="soft" hidden>This session has no audio. Read the script below at your own pace.</p>
   <audio id="sound"></audio>
   <div id="ctrl" class="list">
     <input id="seek" type="range" min="0" max="1000" value="0" aria-label="Position">
     <div class="line tiny soft"><span name="now" class="grow">0:00</span><span name="end">0:00</span></div>
-    <div class="line">
-      <button id="back" class="grow" aria-label="Back 15 seconds">−15s</button>
-      <button id="go" class="grow big">Play</button>
-      <button id="next" class="grow" aria-label="Forward 15 seconds">+15s</button>
+    <div class="line keys">
+      <button id="back" class="round ghost" aria-label="Back 15 seconds">−15</button>
+      <button id="go" class="round big" aria-label="Play"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path class="tri" d="M8 5.5l11 6.5-11 6.5z"/><path class="two" d="M8 5v14M16 5v14"/></svg></button>
+      <button id="next" class="round ghost" aria-label="Forward 15 seconds">+15</button>
     </div>
-    <button id="mute">Mute</button>
+    <button id="mute" class="ghost hug tiny" aria-pressed="false">Mute</button>
   </div>
-  <button id="done">Mark complete</button>
-</div>
+  <button id="done">I'm finished</button>
+</section>
 
 <style>
-.orb { width: 6em; height: 6em; margin: 1em auto; border-radius: 50%; background: radial-gradient(circle, var(--hue), var(--deep) 60%, transparent 70%); }
-.line button { flex: 1 1 0; padding: 0.6em 0.4em; }
-.orb.live { animation: pulse 3s infinite; box-shadow: 0 0 3em var(--glow); }
+.keys { justify-content: center; gap: var(--s5); flex-wrap: nowrap; }
+.keys .ghost { color: var(--mute); font-size: var(--t5); }
+#go { width: 72px; min-height: 72px; }
+#go .icon { width: 30px; height: 30px; fill: currentColor; stroke-width: 2.4; }
+#go .two, #go.run .tri { display: none; }
+#go.run .two { display: inline; }
+#mute { justify-self: center; }
+[name=now] { text-align: left; }
 </style>
 
 <script src="../gun/kit/dom.js"></script>
 <script src="../pen.js"></script>
 <script>
-// body: {src: audio URL or '', title}. Says 'done' when the audio ends or "Mark complete" is tapped.
+// body: {src: audio URL or '', title}. Says 'done' when the audio ends or "I'm finished" is tapped.
 kit.createServer(function(req, res){
   var b = req.body || {};
   sound.pause(); b.src ? sound.src = b.src : sound.removeAttribute('src');
@@ -45,15 +50,15 @@ DECK.time = function(){
   if(sound.duration){ seek.value = Math.round(1000 * sound.currentTime / sound.duration) }
 };
 DECK.skip = function(s){ sound.currentTime = Math.min(Math.max(sound.currentTime + s, 0), sound.duration || 0) };
-DECK.live = function(){ go.textContent = sound.paused ? 'Play' : 'Pause'; orb.tag('live', sound.paused ? -1 : 1) };
+DECK.run = function(){ go.setAttribute('aria-label', sound.paused ? 'Play' : 'Pause'); [go, orb].forEach(function(el){ el.tag('run', sound.paused ? -1 : 1) }) };
 
 go.ear('click', function(){ sound.paused ? sound.play().catch(Boolean) : sound.pause() });
 back.ear('click', function(){ DECK.skip(-15) });
 next.ear('click', function(){ DECK.skip(15) });
-mute.ear('click', function(){ sound.muted = !sound.muted; mute.textContent = sound.muted ? 'Unmute' : 'Mute' });
+mute.ear('click', function(){ sound.muted = !sound.muted; mute.textContent = sound.muted ? 'Unmute' : 'Mute'; mute.setAttribute('aria-pressed', sound.muted) });
 seek.ear('input', function(){ if(sound.duration){ sound.currentTime = seek.value / 1000 * sound.duration } });
 sound.ear('timeupdate loadedmetadata', DECK.time);
-sound.ear('play pause', DECK.live);
+sound.ear('play pause', DECK.run);
 sound.ear('ended', function(){ kit.say(true, 'done') });
 done.ear('click', function(){ sound.pause(); kit.say(true, 'done') });
 </script>

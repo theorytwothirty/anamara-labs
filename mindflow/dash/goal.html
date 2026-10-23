@@ -1,23 +1,27 @@
 <!doctype html>
 <meta charset="utf-8">
 <link rel="stylesheet" href="../gun/kit/web.css"><link rel="stylesheet" href="../app.css">
-<script src="../gun/kit/web.js"></script>
+<script src="../gun/kit/web.js"></script><script src="../env.js"></script>
 
-<div class="card list">
-  <div class="line"><h3 class="grow">Active goals</h3><a href="../goal.html">View all</a></div>
-  <div id="none" class="list" hidden>
-    <p class="soft">You don't have any active goals yet.</p>
-    <a href="../goal.html">Create your first goal</a>
+<section class="list">
+  <div class="line"><h3 class="grow">What you're working toward</h3><a class="tiny" href="../goal.html">All goals</a></div>
+  <div id="none" class="empty" hidden>
+    <p>Name one quality or change you'd like to grow into.</p>
+    <a href="../goal.html">Set your first goal</a>
   </div>
   <div id="box" class="list"></div>
-</div>
+</section>
 <template id="row">
-  <div class="line">
-    <span name="text" class="grow"></span>
-    <span name="kind" class="tag"></span>
-    <span name="due" class="soft tiny"></span>
-  </div>
+  <a class="card line goal" href="../goal.html">
+    <span class="dot" aria-hidden="true"></span>
+    <span class="grow list"><b name="text"></b><span class="line tiny"><span name="kind" class="tag"></span><span name="due" class="soft"></span></span></span>
+  </a>
 </template>
+
+<style>
+.goal { color: var(--ink); gap: var(--s4); flex-wrap: nowrap; padding: var(--s4) var(--s5); }
+.dot { flex: none; width: 12px; height: 12px; border-radius: 50%; background: var(--lilac); box-shadow: 0 0 0 6px var(--lilact); }
+</style>
 
 <script src="../gun/kit/dom.js"></script>
 <script src="../pen.js"></script>
@@ -28,7 +32,7 @@
 kit.createServer(function(req, res){
   var list = (req.body || []).filter(function(g){ return 'active' === g.state }).slice(0, 3);
   none.hidden = !!list.length;
-  ROW.fill(box, row, list.map(function(g){ return {text: g.text, kind: g.kind, due: g.due ? 'Target: ' + PEN.date(g.due) : null} }));
+  ROW.fill(box, row, list.map(function(g){ return {text: g.text, kind: g.kind, due: g.due ? 'by ' + PEN.date(g.due) : null} }));
   res.send(document);
 });
 </script>

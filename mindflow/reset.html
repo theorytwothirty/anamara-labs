@@ -4,20 +4,21 @@
 <link rel="stylesheet" href="gun/kit/web.css"><link rel="stylesheet" href="app.css">
 <script src="gun/kit/web.js"></script>
 
-<div class="pad list">
-  <div id="bad" class="list">
-    <h1>Invalid link</h1>
+<div class="pad slim flow">
+  <p class="calm"><span><a class="mark" href="home.html">MindFlow</a> <span class="soft tiny">by Anamara Labs</span></span></p>
+  <div id="bad" class="card list">
+    <h2>This link doesn't work</h2>
     <p class="soft">This password reset link is missing or invalid. Request a new one.</p>
     <a class="btn" href="lost.html">Request new link</a>
   </div>
-  <form id="form" class="list" hidden>
-    <h1>Choose a new password</h1>
+  <form id="form" class="card list" hidden>
+    <h2>Choose a new password</h2>
     <label>New password <input name="pass" type="password" required minlength="8" maxlength="72" autocomplete="new-password" placeholder="At least 8 characters"></label>
     <p name="err" class="bad" hidden></p>
     <button class="big" name="act">Reset password</button>
   </form>
-  <div id="done" class="list" hidden>
-    <h1>Password reset</h1>
+  <div id="done" class="card list" hidden>
+    <h2>Password updated</h2>
     <p class="soft">Your password has been updated. You can now sign in.</p>
     <a class="btn big" href="sign.html">Sign in</a>
   </div>

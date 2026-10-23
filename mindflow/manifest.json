@@ -1,10 +1,10 @@
 {
   "name": "MindFlow",
   "short_name": "MindFlow",
-  "description": "Personalized Ericksonian hypnosis and reframing.",
+  "description": "Personalized guided practice to help you feel, respond, and show up differently.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#0d0509",
-  "theme_color": "#0d0509"
+  "background_color": "#faf6f1",
+  "theme_color": "#faf6f1"
 }

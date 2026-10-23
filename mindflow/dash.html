@@ -1,33 +1,58 @@
 <!doctype html>
 <meta charset="utf-8">
-<title>Home · MindFlow</title>
+<title>Today · MindFlow</title>
 <link rel="stylesheet" href="gun/kit/web.css"><link rel="stylesheet" href="app.css">
-<script src="gun/kit/web.js"></script>
+<script src="gun/kit/web.js"></script><script src="env.js"></script>
 
-<div class="pad list">
-  <h1>Welcome back<span name="name"></span></h1>
-  <p class="soft">Ready to continue your journey?</p>
-  <div class="card list">
-    <h2>Start with a reframe</h2>
-    <p class="soft">Talk through what you're facing and get an Ericksonian reframe, then deepen it with a practice or a personalized hypnosis session.</p>
-    <a class="btn big" href="new.html">Begin now</a>
+<div class="pad flow">
+  <header class="list">
+    <p class="cap">Hi<span name="name"></span></p>
+    <h1>Who are you becoming?</h1>
+    <p class="lead">Small practices. Different responses. Real-life progress.</p>
+  </header>
+
+  <div class="duo">
+    <a class="card path list" href="new.html">
+      <span class="cap">Shift my state</span>
+      <h2>Need support now?</h2>
+      <p class="soft">Find a new perspective and prepare for what's next.</p>
+      <span class="btn big">Start a quick practice</span>
+    </a>
+    <a class="card path list lilac" href="new.html?tab=deep">
+      <span class="cap">Practice becoming</span>
+      <h2>Grow a quality</h2>
+      <p class="soft">Build confidence, courage, calm, or focus through guided practice.</p>
+      <span class="btn">Choose a quality</span>
+    </a>
   </div>
+
   <p name="err" class="bad" hidden></p>
-  <iframe id="week" src="dash/week.html" title="This week"></iframe>
+  <iframe id="last" src="dash/last.html" title="Continue your practice"></iframe>
   <iframe id="goals" src="dash/goal.html" title="Active goals"></iframe>
-  <iframe id="last" src="dash/last.html" title="Recent sessions"></iframe>
+  <iframe id="week" src="dash/week.html" title="This week"></iframe>
 </div>
 
-<script src="env.js"></script>
+<style>
+.path { color: var(--ink); display: flex; flex-direction: column; transition: transform var(--time) var(--ease), box-shadow var(--time); }
+.path:hover { transform: translateY(-2px); box-shadow: var(--lift2); }
+.path h2 { font-size: var(--t3); }
+.path .btn { margin-top: auto; align-self: stretch; }
+.path p { margin-bottom: var(--s3); }
+.lilac { background: linear-gradient(160deg, var(--lilact), var(--card) 70%); }
+.lilac .cap { color: var(--lilac); }
+.path:not(.lilac) { background: linear-gradient(160deg, var(--roset), var(--card) 70%); }
+.path:not(.lilac) .cap { color: var(--rose); }
+</style>
+
 <script src="api.js"></script>
 <script src="fit.js"></script>
 <script src="nav.js"></script>
 <script>
 kit.createServer(async function(req, res){
   var all = await DASH.load();
-  kit.fetch(week, {sess: all.sess, sum: all.sum}).catch(Boolean);
-  kit.fetch(goals, all.goal).catch(Boolean);
   kit.fetch(last, all.sess).catch(Boolean);
+  kit.fetch(goals, all.goal).catch(Boolean);
+  kit.fetch(week, {sess: all.sess, sum: all.sum}).catch(Boolean);
   res.send(kit.bind(document, {name: all.me ? ', ' + all.me.name : '', err: all.err}));
 });
 

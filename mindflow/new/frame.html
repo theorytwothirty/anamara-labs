@@ -4,22 +4,33 @@
 <script src="../gun/kit/web.js"></script>
 
 <form id="form" class="card list">
-  <label>What problem are you facing?
+  <label>Your situation
     <textarea name="issue" required minlength="10" maxlength="1000" placeholder="E.g., I keep putting off important conversations because I'm afraid of conflict…"></textarea>
   </label>
+  <div id="chips" class="line" aria-label="Examples">
+    <button type="button" class="chip" value="I freeze and go quiet when I want to speak up in meetings.">Speaking up</button>
+    <button type="button" class="chip" value="I keep avoiding a difficult conversation with someone close to me.">A hard conversation</button>
+    <button type="button" class="chip" value="I feel anxious for days before a big event or deadline.">Anxious before an event</button>
+    <button type="button" class="chip" value="I put off important work, then feel bad about it.">Putting things off</button>
+  </div>
   <p name="err" class="bad" hidden></p>
-  <button class="big" name="act">Get reframe</button>
+  <button class="big" name="act">Find a new perspective</button>
 </form>
 
-<div id="out" class="list" hidden>
-  <div class="card list"><h3>Reframe</h3><p name="view" class="loud"></p></div>
-  <div class="card list"><h3>The positive intention</h3><p name="aim"></p></div>
-  <div class="card list"><h3>A new perspective</h3><p name="turn"></p></div>
-  <iframe id="chat" src="frame/chat.html" title="How does this land?"></iframe>
+<div id="out" class="flow" hidden>
+  <section class="card list">
+    <p class="cap">A different way to see this</p>
+    <p name="view" class="say"></p>
+    <details class="fold"><summary>What this may be protecting</summary><p name="aim" class="soft"></p></details>
+    <details class="fold"><summary>Another perspective</summary><p name="turn" class="soft"></p></details>
+  </section>
+  <iframe id="chat" src="frame/chat.html" title="Explore this further"></iframe>
   <iframe id="drill" src="frame/drill.html" title="Somatic practice"></iframe>
   <p name="fail" class="bad" hidden></p>
-  <button id="make" class="big">Generate a hypnosis audio</button>
-  <button id="over">Start over</button>
+  <div class="list">
+    <button id="make" class="big">Create a guided audio for this</button>
+    <button id="over" class="ghost">Start over with something new</button>
+  </div>
 </div>
 
 <script src="../gun/kit/dom.js"></script>
@@ -38,10 +49,10 @@ FRAME.fill = function(conv){ FRAME.conv = conv;
   form.hidden = true; out.hidden = false;
 };
 FRAME.send = async function(eve){ eve.preventDefault();
-  kit.bind(document, {err: null, act: 'Generating…'}); form.act.disabled = true;
+  kit.bind(document, {err: null, act: 'Finding a new perspective…'}); form.act.disabled = true;
   try{ FRAME.fill(FIT.frame(await API.ask('/reframes', {problem: form.issue.value}))) }
   catch(err){ kit.bind(document, {err: err.message}) }
-  kit.bind(document, {act: 'Get reframe'}); form.act.disabled = false;
+  kit.bind(document, {act: 'Find a new perspective'}); form.act.disabled = false;
 };
 FRAME.make = async function(){
   kit.bind(document, {fail: null}); make.disabled = true;
@@ -52,6 +63,7 @@ FRAME.make = async function(){
 FRAME.over = function(){ FRAME.conv = null; form.reset(); out.hidden = true; form.hidden = false };
 
 form.ear('submit', FRAME.send);
+chips.all('button').ear('click', function(){ form.issue.value = this.value; form.issue.focus() });
 make.ear('click', FRAME.make);
 over.ear('click', FRAME.over);
 // The chat and practice parts send back the updated conversation after each change.

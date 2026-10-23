@@ -4,17 +4,19 @@
 <link rel="stylesheet" href="gun/kit/web.css"><link rel="stylesheet" href="app.css">
 <script src="gun/kit/web.js"></script>
 
-<div class="pad list">
-  <p name="load" class="soft wait">Loading your session…</p>
-  <div name="note" class="card list calm" hidden>
+<div class="pad flow">
+  <nav class="line"><a class="btn ghost hug" href="shelf.html">← Exit to library</a></nav>
+  <p name="load" class="soft wait calm">Loading your session…</p>
+  <div name="note" class="empty list" hidden>
     <h2 name="head"></h2>
-    <p name="text" class="soft"></p>
-    <a class="btn" href="shelf.html">Back to library</a>
+    <p name="text"></p>
+    <a class="btn hug" href="shelf.html">Back to library</a>
   </div>
-  <div id="ready" class="list" hidden>
+  <div id="ready" class="flow" hidden>
+    <ol class="steps" aria-label="Steps"><li id="one" class="now">1 · Listen</li><li id="two">2 · Reflect</li></ol>
     <iframe id="deck" src="play/deck.html" title="Player"></iframe>
-    <iframe id="rate" src="play/rate.html" title="Rate this session" hidden></iframe>
-    <div class="card list"><h3>Session script</h3><div id="box" class="list"></div></div>
+    <iframe id="rate" src="play/rate.html" title="Reflect on this session" hidden></iframe>
+    <details class="fold"><summary>Read the script</summary><div id="box" class="list soft"></div></details>
   </div>
 </div>
 <template id="row"><div><p name="text"></p></div></template>
@@ -32,8 +34,8 @@ kit.createServer(async function(req, res){
   PLAY.reset(id); kit.bind(document, {load: 'Loading your session…', note: null});
   try{ s = FIT.sess(await API.ask('/sessions/' + encodeURIComponent(id))) }
   catch(err){ return res.send(kit.bind(document, {load: null, note: {head: "Couldn't load this session", text: err.message}})) }
-  if('failed' === s.state){ return res.send(kit.bind(document, {load: null, note: {head: 'Generation failed', text: s.err || 'Something went wrong generating this session.'}})) }
-  if('ready' !== s.state){ return res.send(kit.bind(document, {load: null, note: {head: 'Still generating…', text: "This session isn't ready yet. Check back shortly."}})) }
+  if('failed' === s.state){ return res.send(kit.bind(document, {load: null, note: {head: "This session didn't finish", text: s.err || 'Something went wrong while creating it. Try making a new one.'}})) }
+  if('ready' !== s.state){ return res.send(kit.bind(document, {load: null, note: {head: 'Still being created…', text: "This session isn't ready yet. Check back in a minute or two."}})) }
   ROW.fill(box, row, s.text.split('\n\n').map(function(t){ return {text: t} }));
   ready.hidden = false;
   try{ PLAY.src = s.audio ? await API.link('/sessions/' + encodeURIComponent(id) + '/audio') : '' }catch(err){ PLAY.src = '' }
@@ -42,14 +44,15 @@ kit.createServer(async function(req, res){
 });
 
 var PLAY = {};
+PLAY.step = function(n){ one.tag('now', 1 === n ? 1 : -1); two.tag('now', 2 === n ? 1 : -1); deck.hidden = 2 === n; rate.hidden = 1 === n };
 PLAY.reset = function(id){
-  PLAY.id = id; PLAY.saved = 0; ready.hidden = true; deck.hidden = false; rate.hidden = true;
+  PLAY.id = id; PLAY.saved = 0; ready.hidden = true; PLAY.step(1);
   PLAY.src && URL.revokeObjectURL(PLAY.src); PLAY.src = '';
 };
-// The player says 'done' when audio ends or "Mark complete" is tapped; record it at once, then ask for a rating.
+// The player says 'done' when audio ends or "Finish" is tapped; record it at once, then ask for a reflection.
 PLAY.done = function(eve){ eve.preventDefault();
   if(!PLAY.saved){ PLAY.saved = 1; API.ask('/sessions/' + encodeURIComponent(PLAY.id) + '/complete', {rating: null, user_notes: null}).catch(function(){ PLAY.saved = 0 }) }
-  deck.hidden = true; rate.hidden = false;
+  PLAY.step(2);
   kit.fetch(rate, {id: PLAY.id}).catch(Boolean);
 };
 kit.ear('done', PLAY.done);

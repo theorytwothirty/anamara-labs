@@ -1,39 +1,49 @@
 <!doctype html>
 <meta charset="utf-8">
 <link rel="stylesheet" href="../gun/kit/web.css"><link rel="stylesheet" href="../app.css">
-<script src="../gun/kit/web.js"></script>
+<script src="../gun/kit/web.js"></script><script src="../env.js"></script>
 
-<div class="list">
-  <div class="line"><h3 class="grow">Recent sessions</h3><a href="../shelf.html">Library</a></div>
-  <div id="none" class="card list" hidden>
-    <p class="soft">No sessions yet. Start your first one to see it here.</p>
-    <a href="../new.html">Start a reframe</a>
+<section class="list">
+  <h3>Continue your practice</h3>
+  <div id="none" class="empty" hidden>
+    <p>Your practices will appear here.</p>
+    <a href="../new.html">Start your first practice</a>
   </div>
-  <div id="box" class="list"></div>
-</div>
-<template id="row">
-  <a class="card list">
-    <h4 name="title"></h4>
-    <span name="stars" class="tiny"></span>
-    <span name="when" class="soft tiny"></span>
+  <a id="first" class="card next line" hidden>
+    <span class="play" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24"><path d="M9 7l8 5-8 5z"/></svg></span>
+    <span class="grow list"><b name="title"></b><span name="when" class="soft tiny"></span></span>
   </a>
+  <div id="box" class="list"></div>
+  <a id="more" href="../shelf.html" class="tiny" hidden>See your library</a>
+</section>
+<template id="row">
+  <a class="line item"><span name="title" class="grow"></span><span name="when" class="soft tiny"></span></a>
 </template>
+
+<style>
+.next { color: var(--ink); gap: var(--s4); flex-wrap: nowrap; }
+.play { flex: none; width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; background: var(--rose); color: #fff; }
+.play .icon { fill: currentColor; stroke: none; }
+.item { color: var(--ink); padding: var(--s3) var(--s1); border-bottom: 1px solid var(--line); }
+</style>
 
 <script src="../gun/kit/dom.js"></script>
 <script src="../pen.js"></script>
 <script src="../row.js"></script>
 <script src="../nav.js"></script>
 <script>
-// body: [session]. Shows the three most recent ready ones, newest first.
+// body: [session]. The newest ready session leads; the next two follow as a short list.
 kit.createServer(function(req, res){
-  var list = (req.body || []).filter(function(s){ return 'ready' === s.state }).sort(LAST.new).slice(0, 3);
-  none.hidden = !!list.length;
-  ROW.fill(box, row, list.map(LAST.item), function(el, s){ el.href = '../play.html?id=' + encodeURIComponent(s.id) });
+  var list = (req.body || []).filter(function(s){ return 'ready' === s.state }).sort(LAST.new).map(LAST.item);
+  none.hidden = !!list.length; first.hidden = more.hidden = !list.length;
+  if(list[0]){ kit.bind(first, list[0]); first.href = LAST.link(list[0]) }
+  ROW.fill(box, row, list.slice(1, 3), function(el, s){ el.href = LAST.link(s) });
   res.send(document);
 });
 
 var LAST = {};
 LAST.at = function(s){ return new Date(s.done || s.made).getTime() };
 LAST.new = function(a, b){ return LAST.at(b) - LAST.at(a) };
-LAST.item = function(s){ return {id: s.id, title: s.title, stars: PEN.star(s.stars) || null, when: PEN.ago(s.done || s.made) + ' · ' + s.len + ' min'} };
+LAST.link = function(s){ return '../play.html?id=' + encodeURIComponent(s.id) };
+LAST.item = function(s){ return {id: s.id, title: s.title, when: PEN.ago(s.done || s.made) + ' · ' + s.len + ' min' + (s.stars ? ' · ' + PEN.star(s.stars) : '')} };
 </script>

@@ -4,25 +4,30 @@
 <script src="../gun/kit/web.js"></script>
 
 <form id="form" class="card list calm">
-  <h2>Session completed</h2>
-  <p class="soft">Great job taking this time for yourself. How effective was this session?</p>
-  <div id="stars" class="line">
-    <button type="button" class="grow star" value="1" aria-label="1 star">★</button>
-    <button type="button" class="grow star" value="2" aria-label="2 stars">★</button>
-    <button type="button" class="grow star" value="3" aria-label="3 stars">★</button>
-    <button type="button" class="grow star" value="4" aria-label="4 stars">★</button>
-    <button type="button" class="grow star" value="5" aria-label="5 stars">★</button>
+  <p class="cap">Practice complete</p>
+  <h2>Well done for showing up.</h2>
+  <p class="soft">How helpful was this practice for you?</p>
+  <div id="stars" class="line" role="group" aria-label="Rating">
+    <button type="button" class="star" value="1" aria-label="1 star">★</button>
+    <button type="button" class="star" value="2" aria-label="2 stars">★</button>
+    <button type="button" class="star" value="3" aria-label="3 stars">★</button>
+    <button type="button" class="star" value="4" aria-label="4 stars">★</button>
+    <button type="button" class="star" value="5" aria-label="5 stars">★</button>
   </div>
-  <label>Session notes (optional)
-    <textarea name="note" maxlength="500" placeholder="Any insights or feelings you want to remember?"></textarea>
+  <label>What did you notice? (optional)
+    <textarea name="note" maxlength="500" placeholder="A feeling, an image, something you'd like to try for real…"></textarea>
   </label>
   <p name="err" class="bad" hidden></p>
-  <button class="big" name="act">Save and return to library</button>
+  <button class="big" name="act">Save reflection</button>
+  <a class="btn ghost" href="../shelf.html">Skip for now</a>
 </form>
 
 <style>
-.star { flex: 1 1 0; font-size: 1.4em; color: var(--soft); padding: 0.3em; }
-.star.on { color: #fbbf24; border-color: #fbbf24; }
+#stars { justify-content: center; gap: var(--s1); flex-wrap: nowrap; }
+.star { width: var(--tap); padding: 0; font-size: 1.7rem; color: #d9cdd6; background: transparent; border-color: transparent; box-shadow: none; }
+.star:hover { color: #e3b35d; background: transparent; border-color: transparent; box-shadow: none; }
+.star.on { color: #d99a2b; background: transparent; border-color: transparent; }
+label { text-align: left; }
 </style>
 
 <script src="../gun/kit/dom.js"></script>
@@ -37,7 +42,7 @@ kit.createServer(function(req, res){
 });
 
 var RATE = {};
-RATE.pick = function(n){ RATE.n = +n; stars.all('button').forEach(function(b){ b.tag('on', +b.value <= RATE.n ? 1 : -1) }) };
+RATE.pick = function(n){ RATE.n = +n; stars.all('button').forEach(function(b){ b.tag('on', +b.value <= RATE.n ? 1 : -1); b.setAttribute('aria-pressed', +b.value <= RATE.n) }) };
 RATE.send = async function(eve){ eve.preventDefault();
   form.act.disabled = true; kit.bind(document, {err: null});
   try{

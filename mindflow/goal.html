@@ -4,28 +4,39 @@
 <link rel="stylesheet" href="gun/kit/web.css"><link rel="stylesheet" href="app.css">
 <script src="gun/kit/web.js"></script>
 
-<div class="pad list">
-  <h1>Goals</h1>
-  <p class="soft"><span name="count">0</span>/3 active goals</p>
-  <button id="plus" class="big">New goal</button>
-  <iframe id="add" src="goal/add.html" title="New goal" hidden></iframe>
+<div class="pad flow">
+  <header class="list">
+    <p class="cap">Goals</p>
+    <h1>Your journeys</h1>
+    <p class="lead">Who are you growing into? Hold up to three journeys at a time, and practice toward them.</p>
+  </header>
+  <div class="line"><span class="grow soft"><b name="count" class="num">0</b> of 3 active</span><button id="plus" class="big">New journey</button></div>
+  <iframe id="add" src="goal/add.html" title="New journey" hidden></iframe>
   <p name="err" class="bad" hidden></p>
-  <div id="none" class="card list" hidden><p class="soft">You don't have any goals yet. Create one to get started.</p></div>
+  <div id="none" class="empty list" hidden><p>No journeys yet. Name one quality or change you'd like to grow into.</p></div>
   <div id="box" class="list"></div>
 </div>
 <template id="row">
-  <div class="card list">
-    <span class="line"><span name="state" class="tag"></span><span name="kind" class="soft tiny"></span></span>
-    <p name="text"></p>
-    <span name="due" class="soft tiny"></span>
+  <article class="card list trip">
+    <span class="line"><span name="kind" class="cap grow"></span><span name="state" class="tag"></span></span>
+    <h3 name="text"></h3>
+    <span name="when" class="soft tiny"></span>
+    <a class="btn big hug" href="new.html">Practice now</a>
     <div class="line">
-      <button class="grow" value="completed">Complete</button>
-      <button class="grow" value="paused">Pause</button>
-      <button class="grow" value="active">Resume</button>
-      <button class="grow" value="">Delete</button>
+      <button class="ghost tiny" value="completed">Mark complete</button>
+      <button class="ghost tiny" value="paused">Pause</button>
+      <button class="ghost tiny" value="active">Resume</button>
+      <button class="ghost tiny risk" value="">Delete</button>
     </div>
-  </div>
+  </article>
 </template>
+
+<style>
+.trip { border-left: 4px solid var(--lilac); }
+.trip.paused { border-left-color: var(--line); }
+.trip.completed { border-left-color: var(--ok); }
+.trip .line .ghost { padding-inline: var(--s3); }
+</style>
 
 <script src="gun/kit/dom.js"></script>
 <script src="env.js"></script>
@@ -47,10 +58,14 @@ GOAL.load = async function(list){
 GOAL.draw = function(list){ GOAL.all = list;
   none.hidden = !!list.length;
   kit.bind(document, {count: list.filter(function(g){ return 'active' === g.state }).length});
-  ROW.fill(box, row, list.map(function(g){ return {id: g.id, state: g.state, kind: g.kind, text: g.text, due: g.due ? 'Target: ' + PEN.date(g.due) : null} }), GOAL.wire);
+  ROW.fill(box, row, list.map(GOAL.item), GOAL.wire);
+};
+GOAL.item = function(g){
+  return {id: g.id, state: g.state, kind: g.kind, text: g.text, when: ['Started ' + PEN.date(g.made), g.due ? 'aiming for ' + PEN.date(g.due) : '', g.done ? 'completed ' + PEN.date(g.done) : ''].filter(Boolean).join(' · ')};
 };
 // Show only the moves that make sense for this goal's state; an empty value means delete.
 GOAL.wire = function(el, g){
+  el.tag(g.state, 1); el.all('a')[0].hidden = 'active' !== g.state;
   el.all('button').forEach(function(b){
     b.hidden = b.value === g.state || ('paused' === b.value && 'active' !== g.state) || ('active' === b.value && 'paused' !== g.state);
     b.ear('click', function(){ GOAL.move(g, b.value, b) });
@@ -63,7 +78,7 @@ GOAL.move = async function(g, state, b){
     await GOAL.load();
   }catch(err){ b.disabled = false; kit.bind(document, {err: err.message}) }
 };
-GOAL.show = function(on){ add.hidden = !on; plus.textContent = on ? 'Cancel' : 'New goal'; on && kit.fetch(add, {}).catch(Boolean) };
+GOAL.show = function(on){ add.hidden = !on; plus.textContent = on ? 'Cancel' : 'New journey'; plus.tag('big', on ? -1 : 1); on && kit.fetch(add, {}).catch(Boolean) };
 plus.ear('click', function(){ GOAL.show(add.hidden) });
 // The form says 'goal' after it creates one.
 kit.ear('goal', function(eve){ eve.preventDefault(); GOAL.show(0); GOAL.load() });

@@ -4,21 +4,29 @@
 <link rel="stylesheet" href="gun/kit/web.css"><link rel="stylesheet" href="app.css">
 <script src="gun/kit/web.js"></script>
 
-<div class="pad list">
-  <h1>Progress</h1>
-  <p class="soft">Your mood trends and session history.</p>
+<div class="pad flow">
+  <header class="list">
+    <p class="cap">Progress</p>
+    <h1>Your practice</h1>
+    <p class="lead">A record of the time you've given yourself.</p>
+  </header>
   <p name="err" class="bad" hidden></p>
-  <div class="card line">
-    <div class="grow"><div name="count" class="num">0</div><div class="soft tiny">Sessions completed</div></div>
-    <div class="grow"><div name="rate" class="num">--</div><div class="soft tiny">Habit success rate</div></div>
-    <div class="grow"><div name="logs" class="num">0</div><div class="soft tiny">Habit logs</div></div>
-  </div>
-  <iframe id="chart" src="mood/chart.html" title="Mood trend"></iframe>
-  <div id="tips" class="card list" hidden><h3>Insights</h3><ul id="box" class="list"></ul></div>
-  <button id="csv">Export CSV</button>
+  <section class="card list">
+    <div class="line"><b name="count" class="num huge">0</b><span class="grow soft">practices completed</span></div>
+    <div class="line tiny soft"><span class="grow">Habit success rate <b name="rate">--</b></span><span class="grow">Habit logs <b name="logs">0</b></span></div>
+    <p class="soft tiny">Practicing regularly builds the habit. Real change shows up in how you feel and respond in daily life, so notice that too.</p>
+  </section>
+  <iframe id="chart" src="mood/chart.html" title="How you've been feeling"></iframe>
+  <section id="tips" class="card list" hidden><p class="cap">Insights</p><ul id="box" class="list"></ul></section>
+  <button id="csv" class="hug">Download my progress (CSV)</button>
   <a id="file" download="mindflow_progress.csv" hidden></a>
 </div>
 <template id="row"><li><span name="text"></span></li></template>
+
+<style>
+.huge { font-size: var(--t1); }
+#box li { padding-left: var(--s4); border-left: 3px solid var(--lilact); }
+</style>
 
 <script src="gun/kit/dom.js"></script>
 <script src="env.js"></script>

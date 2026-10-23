@@ -4,16 +4,19 @@
 <link rel="stylesheet" href="gun/kit/web.css"><link rel="stylesheet" href="app.css">
 <script src="gun/kit/web.js"></script>
 
-<form id="form" class="pad list">
-  <h1>Welcome back</h1>
-  <p class="soft">Sign in to continue your journey.</p>
-  <label>Email <input name="mail" type="email" required autocomplete="email" placeholder="you@example.com"></label>
-  <label>Password <input name="pass" type="password" required autocomplete="current-password"></label>
-  <p name="err" class="bad" hidden></p>
-  <button class="big" name="act">Sign in</button>
-  <a href="lost.html">Forgot password?</a>
-  <p class="soft">No account yet? <a href="join.html">Sign up</a></p>
-</form>
+<div class="pad slim flow">
+  <p class="calm"><span><a class="mark" href="home.html">MindFlow</a> <span class="soft tiny">by Anamara Labs</span></span></p>
+  <form id="form" class="card list">
+    <h2>Welcome back</h2>
+    <p class="soft">Sign in to continue your practice.</p>
+    <label>Email <input name="mail" type="email" required autocomplete="email" placeholder="you@example.com"></label>
+    <label>Password <input name="pass" type="password" required autocomplete="current-password"></label>
+    <p name="err" class="bad" hidden></p>
+    <button class="big" name="act">Sign in</button>
+    <a class="tiny calm" href="lost.html">Forgot your password?</a>
+  </form>
+  <p class="soft calm">New to MindFlow? <a href="join.html">Create an account</a></p>
+</div>
 
 <script src="gun/kit/dom.js"></script>
 <script src="env.js"></script>

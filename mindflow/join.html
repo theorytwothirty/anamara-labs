@@ -4,16 +4,20 @@
 <link rel="stylesheet" href="gun/kit/web.css"><link rel="stylesheet" href="app.css">
 <script src="gun/kit/web.js"></script>
 
-<form id="form" class="pad list">
-  <h1>Start your journey</h1>
-  <p class="soft">Create your account to get personalized sessions.</p>
-  <label>Name <input name="name" required autocomplete="name" placeholder="Your name"></label>
-  <label>Email <input name="mail" type="email" required autocomplete="email" placeholder="you@example.com"></label>
-  <label>Password <input name="pass" type="password" required minlength="8" maxlength="72" autocomplete="new-password" placeholder="At least 8 characters"></label>
-  <p name="err" class="bad" hidden></p>
-  <button class="big" name="act">Create account</button>
-  <p class="soft">Already have an account? <a href="sign.html">Sign in</a></p>
-</form>
+<div class="pad slim flow">
+  <p class="calm"><span><a class="mark" href="home.html">MindFlow</a> <span class="soft tiny">by Anamara Labs</span></span></p>
+  <form id="form" class="card list">
+    <h2>Start practicing</h2>
+    <p class="soft">Create your account for personalized guided practice.</p>
+    <label>Name <input name="name" required autocomplete="name" placeholder="Your name"></label>
+    <label>Email <input name="mail" type="email" required autocomplete="email" placeholder="you@example.com"></label>
+    <label>Password <input name="pass" type="password" required minlength="8" maxlength="72" autocomplete="new-password" placeholder="At least 8 characters"></label>
+    <p name="err" class="bad" hidden></p>
+    <button class="big" name="act">Create account</button>
+  </form>
+  <p class="soft calm">Already have an account? <a href="sign.html">Sign in</a></p>
+  <p class="soft tiny calm">MindFlow supports personal growth. It isn't therapy or medical care.</p>
+</div>
 
 <script src="gun/kit/dom.js"></script>
 <script src="env.js"></script>

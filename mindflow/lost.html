@@ -4,19 +4,21 @@
 <link rel="stylesheet" href="gun/kit/web.css"><link rel="stylesheet" href="app.css">
 <script src="gun/kit/web.js"></script>
 
-<form id="form" class="pad list">
-  <h1>Reset your password</h1>
-  <p class="soft">Enter your email and we'll send you a reset link.</p>
-  <label>Email <input name="mail" type="email" required autocomplete="email" placeholder="you@example.com"></label>
-  <p name="err" class="bad" hidden></p>
-  <button class="big" name="act">Send reset link</button>
-  <p class="soft">Remembered it? <a href="sign.html">Sign in</a></p>
-</form>
-
-<div id="sent" class="pad list" hidden>
-  <h1>Check your email</h1>
-  <p class="soft">If an account exists for <b name="mail"></b>, we've sent a link to reset your password. It expires in 1 hour.</p>
-  <a href="sign.html">Back to sign in</a>
+<div class="pad slim flow">
+  <p class="calm"><span><a class="mark" href="home.html">MindFlow</a> <span class="soft tiny">by Anamara Labs</span></span></p>
+  <form id="form" class="card list">
+    <h2>Reset your password</h2>
+    <p class="soft">Enter your email and we'll send you a reset link.</p>
+    <label>Email <input name="mail" type="email" required autocomplete="email" placeholder="you@example.com"></label>
+    <p name="err" class="bad" hidden></p>
+    <button class="big" name="act">Send reset link</button>
+    <a class="tiny calm" href="sign.html">Remembered it? Sign in</a>
+  </form>
+  <div id="sent" class="card list" hidden>
+    <h2>Check your email</h2>
+    <p class="soft">If an account exists for <b name="mail"></b>, we've sent a link to reset your password. It expires in 1 hour.</p>
+    <a class="btn" href="sign.html">Back to sign in</a>
+  </div>
 </div>
 
 <script src="gun/kit/dom.js"></script>

@@ -1,18 +1,21 @@
 <!doctype html>
 <meta charset="utf-8">
-<title>New session · MindFlow</title>
+<title>Practice · MindFlow</title>
 <link rel="stylesheet" href="gun/kit/web.css"><link rel="stylesheet" href="app.css">
-<script src="gun/kit/web.js"></script>
+<script src="gun/kit/web.js"></script><script src="env.js"></script>
 
-<div class="pad list">
-  <h1>New session</h1>
-  <p class="soft">Start a conversational reframe, or go straight to a personalized hypnosis audio session.</p>
-  <div class="line">
-    <button id="tabframe" class="grow on">Reframe</button>
-    <button id="tabdeep" class="grow">Hypnosis</button>
+<div class="pad flow">
+  <header class="list">
+    <p class="cap">Practice</p>
+    <h1>What's on your mind?</h1>
+    <p class="lead">Tell me about a situation where you'd like to feel or respond differently.</p>
+  </header>
+  <div class="tabs" role="group" aria-label="Kind of practice">
+    <button id="tabframe" class="on" aria-pressed="true">Shift my state</button>
+    <button id="tabdeep" aria-pressed="false">Practice becoming</button>
   </div>
-  <iframe id="frame" src="new/frame.html" title="Reframe"></iframe>
-  <iframe id="deep" src="new/deep.html" title="Hypnosis" hidden></iframe>
+  <iframe id="frame" src="new/frame.html" title="Shift my state"></iframe>
+  <iframe id="deep" src="new/deep.html" title="Practice becoming" hidden></iframe>
 </div>
 
 <script src="gun/kit/dom.js"></script>
@@ -27,7 +30,7 @@ kit.createServer(function(req, res){
 var NEW = {};
 NEW.pick = function(tab){
   frame.hidden = 'frame' !== tab; deep.hidden = 'deep' !== tab;
-  tabframe.tag('on', frame.hidden ? -1 : 1); tabdeep.tag('on', deep.hidden ? -1 : 1);
+  [[tabframe, frame], [tabdeep, deep]].forEach(function(t){ t[0].tag('on', t[1].hidden ? -1 : 1); t[0].setAttribute('aria-pressed', !t[1].hidden) });
 };
 tabframe.ear('click', function(){ NEW.pick('frame') });
 tabdeep.ear('click', function(){ NEW.pick('deep') });
