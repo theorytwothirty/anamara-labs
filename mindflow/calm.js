@@ -1,7 +1,8 @@
-// A soft background under guided audio: filtered noise whose level rises and falls like slow waves.
+// A soft background under guided audio: filtered noise whose level rises and falls like slow waves, and optionally a
+// deep relaxation tone (a 6 Hz theta binaural beat: 200 Hz left, 206 Hz right; it needs headphones to be heard as a beat).
 // Made in the browser with Web Audio, so there are no sound files or licences.
 ;(function(){
-var CALM = window.CALM = {on: false, level: 0.05};
+var CALM = window.CALM = {on: false, tone: false, level: 0.05, hum: 0.02};
 
 // Builds the sound once, on the first tap (browsers only allow audio after a tap).
 CALM.wake = function(ctx, noise, data, last, i, low, swell, depth){
@@ -17,15 +18,24 @@ CALM.wake = function(ctx, noise, data, last, i, low, swell, depth){
   CALM.wave = ctx.createGain(); CALM.wave.gain.value = 0.65;
   swell.connect(depth).connect(CALM.wave.gain);
   noise.connect(low).connect(CALM.wave).connect(CALM.gain).connect(ctx.destination);
+  CALM.beat = ctx.createGain(); CALM.beat.gain.value = 0; CALM.beat.connect(ctx.destination);
+  [[200, -1], [206, 1]].forEach(function(t, osc, pan){
+    osc = ctx.createOscillator(); osc.frequency.value = t[0];
+    pan = ctx.createStereoPanner(); pan.pan.value = t[1];
+    osc.connect(pan).connect(CALM.beat); osc.start();
+  });
   noise.start(); swell.start();
   return ctx.resume();
 };
-// to: the level to glide to; secs: how long the fade takes.
-CALM.fade = function(to, secs, g){
-  if(!CALM.gain){ return } g = CALM.gain.gain;
+// node: a gain to glide to `to` over `secs`.
+CALM.fade = function(node, to, secs, g){
+  if(!node){ return } g = node.gain;
   g.cancelScheduledValues(CALM.ctx.currentTime); g.setValueAtTime(g.value, CALM.ctx.currentTime);
   g.linearRampToValueAtTime(to, CALM.ctx.currentTime + secs);
 };
 // playing: whether the guided audio is playing now; quiet: whether it is muted.
-CALM.follow = function(playing, quiet){ CALM.fade(CALM.on && playing && !quiet ? CALM.level : 0, playing ? 3 : 1.5) };
+CALM.follow = function(playing, quiet, live){ live = CALM.on && playing && !quiet;
+  CALM.fade(CALM.gain, live ? CALM.level : 0, playing ? 3 : 1.5);
+  CALM.fade(CALM.beat, live && CALM.tone ? CALM.hum : 0, playing ? 6 : 1.5);
+};
 }());

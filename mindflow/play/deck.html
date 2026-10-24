@@ -38,10 +38,10 @@
 <script src="../pen.js"></script>
 <script src="../calm.js"></script>
 <script>
-// body: {src: audio URL or '', title, bg: soft background on}. Says 'done' when the audio ends or "I'm finished" is tapped.
+// body: {src: audio URL or '', title, bg: soft background on, tone: relaxation tone on}. Says 'done' when the audio ends or "I'm finished" is tapped.
 kit.createServer(function(req, res){
   var b = req.body || {};
-  sound.pause(); CALM.on = !!b.bg; DECK.calm(); b.src ? sound.src = b.src : sound.removeAttribute('src');
+  sound.pause(); CALM.on = !!b.bg; CALM.tone = !!b.tone; DECK.calm(); b.src ? sound.src = b.src : sound.removeAttribute('src');
   ctrl.hidden = !b.src;
   res.send(kit.bind(document, {title: b.title, none: b.src ? null : {}, now: '0:00', end: '0:00'}));
 });
@@ -53,13 +53,15 @@ DECK.time = function(){
 };
 DECK.skip = function(s){ sound.currentTime = Math.min(Math.max(sound.currentTime + s, 0), sound.duration || 0) };
 DECK.run = function(){ go.setAttribute('aria-label', sound.paused ? 'Play' : 'Pause'); [go, orb].forEach(function(el){ el.tag('run', sound.paused ? -1 : 1) }); DECK.calm() };
-DECK.calm = function(){ calm.textContent = 'Background: ' + (CALM.on ? 'on' : 'off'); calm.setAttribute('aria-pressed', CALM.on); CALM.follow(!sound.paused, sound.muted) };
+DECK.calm = function(){ calm.textContent = 'Background: ' + (CALM.on ? CALM.tone ? 'waves + tone' : 'waves' : 'off'); calm.setAttribute('aria-pressed', CALM.on); CALM.follow(!sound.paused, sound.muted) };
+// Off → waves → waves + relaxation tone → off.
+DECK.next = function(){ CALM.tone = CALM.on && !CALM.tone; CALM.on = !CALM.on || CALM.tone; CALM.wake(); DECK.calm() };
 
 go.ear('click', function(){ CALM.wake(); sound.paused ? sound.play().catch(Boolean) : sound.pause() });
 back.ear('click', function(){ DECK.skip(-15) });
 next.ear('click', function(){ DECK.skip(15) });
 mute.ear('click', function(){ sound.muted = !sound.muted; mute.textContent = sound.muted ? 'Unmute' : 'Mute'; mute.setAttribute('aria-pressed', sound.muted); DECK.calm() });
-calm.ear('click', function(){ CALM.on = !CALM.on; CALM.wake(); DECK.calm() });
+calm.ear('click', DECK.next);
 seek.ear('input', function(){ if(sound.duration){ sound.currentTime = seek.value / 1000 * sound.duration } });
 sound.ear('timeupdate loadedmetadata', DECK.time);
 sound.ear('play pause', DECK.run);

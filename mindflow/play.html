@@ -39,13 +39,13 @@ kit.createServer(async function(req, res){
   ROW.fill(box, row, s.text.split('\n\n').map(function(t){ return {text: t} }));
   ready.hidden = false;
   try{ PLAY.src = s.audio ? await API.link('/sessions/' + encodeURIComponent(id) + '/audio') : '' }catch(err){ PLAY.src = '' }
-  kit.fetch(deck, {src: PLAY.src, title: s.title, bg: await PLAY.bg()}).catch(Boolean);
+  kit.fetch(deck, {src: PLAY.src, title: s.title, bg: (PLAY.p = await PLAY.pref()).bg, tone: PLAY.p.tone}).catch(Boolean);
   res.send(kit.bind(document, {load: null}));
 });
 
 var PLAY = {};
-// Whether the person wants the soft background (Settings → Background sounds); on if it can't be read.
-PLAY.bg = async function(){ try{ return FIT.user(await API.ask('/users/me')).pref.bg }catch(err){ return true } };
+// The person's background choices from Settings: {bg, tone}. Waves on, tone off, if they can't be read.
+PLAY.pref = async function(){ try{ return FIT.user(await API.ask('/users/me')).pref }catch(err){ return {bg: true, tone: false} } };
 PLAY.step = function(n){ one.tag('now', 1 === n ? 1 : -1); two.tag('now', 2 === n ? 1 : -1); deck.hidden = 2 === n; rate.hidden = 1 === n };
 PLAY.reset = function(id){
   PLAY.id = id; PLAY.saved = 0; ready.hidden = true; PLAY.step(1);
