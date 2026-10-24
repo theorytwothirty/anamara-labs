@@ -4,18 +4,24 @@
 <script src="../gun/kit/web.js"></script>
 
 <section class="card list">
-  <p class="cap">Email</p>
+  <p class="cap">Health</p>
+  <p class="soft">The AI and email are checked automatically every morning, and you're emailed if something needs fixing. You can also check now.</p>
+  <button id="check" class="hug">Check the AI and email now</button>
+  <p name="fine" class="good" hidden></p>
+  <ul id="box" class="list bad" hidden></ul>
   <p class="soft">Sign-up, password-reset and weekly emails go out through Resend. Send one to yourself to check it works.</p>
   <button id="send" class="hug">Send me a test email</button>
   <p name="sent" class="good" hidden></p>
   <p name="problem" class="bad" hidden></p>
 </section>
+<template id="row"><li><span name="text"></span></li></template>
 
 <script src="../gun/kit/dom.js"></script>
 <script src="../env.js"></script>
 <script src="../api.js"></script>
+<script src="../row.js"></script>
 <script>
-// No body needed. Shows what Resend said, so a missing key or unverified sender is plain to see.
+// No body needed. Shows what the AI, Resend and the check said, so whatever needs fixing is plain to see.
 kit.createServer(function(req, res){ res.send(document) });
 
 var MAIL = {};
@@ -27,5 +33,14 @@ MAIL.send = async function(r){
   }catch(err){ kit.bind(document, {problem: err.message}) }
   send.disabled = false;
 };
+MAIL.check = async function(r, bad){
+  check.disabled = true; box.hidden = true; kit.bind(document, {fine: null});
+  try{ r = await API.ask('/insights/team/check', {}); bad = [r.ai, r.email].filter(Boolean) }
+  catch(err){ bad = [err.message] }
+  ROW.fill(box, row, bad.map(function(t){ return {text: t} })); box.hidden = !bad.length;
+  kit.bind(document, {fine: bad.length ? null : 'All good: the AI' + (r.model ? ' (' + r.model + ')' : '') + ' answered and email is set up.'});
+  check.disabled = false;
+};
 send.ear('click', MAIL.send);
+check.ear('click', MAIL.check);
 </script>
