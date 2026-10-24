@@ -15,6 +15,7 @@
   <a id="team" class="card line link" href="team.html" hidden><span class="grow list"><b>How MindFlow is being used</b><span class="soft tiny">Counts only, for the team</span></span><span aria-hidden="true">→</span></a>
   <iframe id="me" src="set/me.html" title="Profile and preferences"></iframe>
   <iframe id="pass" src="set/pass.html" title="Change password"></iframe>
+  <iframe id="mind" src="set/mind.html" title="What MindFlow remembers"></iframe>
   <iframe id="data" src="set/data.html" title="Your data"></iframe>
   <iframe id="end" src="set/end.html" title="Account"></iframe>
 </div>
@@ -30,7 +31,9 @@
 kit.createServer(async function(req, res){
   var u;
   try{ u = FIT.user(await API.ask('/users/me')); team.hidden = !u.boss; await kit.fetch(me, u) }catch(err){ kit.bind(document, {err: err.message}); return res.send(document) }
-  [pass, data, end].forEach(function(one){ kit.fetch(one, {}).catch(Boolean) });
+  [pass, mind, data, end].forEach(function(one){ kit.fetch(one, {}).catch(Boolean) });
   res.send(kit.bind(document, {err: null}));
 });
+// Saving preferences may turn memory on or off, so the note is shown again.
+kit.ear('prefs', function(eve){ eve.preventDefault(); kit.fetch(mind, {}).catch(Boolean) });
 </script>

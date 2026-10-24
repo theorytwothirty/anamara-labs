@@ -4,10 +4,10 @@ var FIT = window.FIT = {};
 
 FIT.user = function(u, p){ p = u.preferences || {};
   return {id: u.id, name: u.name, mail: u.email, ok: u.email_verified ? 'Yes' : 'No', plan: u.subscription_tier, boss: !!u.is_admin,
-    pref: {voice: p.voice_type, len: p.session_length, bg: !!p.background_sounds, tone: !!p.relax_tone, weekly: false !== p.weekly_email}};
+    pref: {voice: p.voice_type, len: p.session_length, bg: !!p.background_sounds, tone: !!p.relax_tone, weekly: false !== p.weekly_email, remember: false !== p.remember}};
 };
 FIT.me = function(m){
-  return {name: m.name, preferences: {voice_type: m.voice, session_length: +m.len, background_sounds: !!m.bg, relax_tone: !!m.tone, weekly_email: !!m.weekly}};
+  return {name: m.name, preferences: {voice_type: m.voice, session_length: +m.len, background_sounds: !!m.bg, relax_tone: !!m.tone, weekly_email: !!m.weekly, remember: !!m.remember}};
 };
 
 FIT.goal = function(g){

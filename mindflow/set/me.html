@@ -25,6 +25,8 @@
   <label class="line tick"><input name="tone" type="checkbox"> <span class="grow">Add a deep relaxation tone (best with headphones)</span></label>
   <p class="cap split">Email</p>
   <label class="line tick"><input name="weekly" type="checkbox"> <span class="grow">A short summary of your week, on Mondays</span></label>
+  <p class="cap split">Memory</p>
+  <label class="line tick"><input name="remember" type="checkbox"> <span class="grow">Remember what I share, so each session builds on the last</span></label>
   <p name="err" class="bad" hidden></p>
   <p name="saved" class="good" hidden>Saved</p>
   <button class="big" name="act">Save changes</button>
@@ -41,18 +43,18 @@
 <script src="../fit.js"></script>
 <script src="../hear.js"></script>
 <script>
-// body: a user {name, mail, plan, ok, pref: {voice, len, bg, tone, weekly}}.
+// body: a user {name, mail, plan, ok, pref: {voice, len, bg, tone, weekly, remember}}. Says 'prefs' after saving.
 kit.createServer(function(req, res){ ME.fill(req.body || {}); res.send(document) });
 
 var ME = {};
 ME.fill = function(u, p){ p = u.pref || {};
   kit.bind(document, {name: u.name, mail: u.mail, plan: u.plan, ok: u.ok, voice: p.voice, len: p.len, mins: p.len, err: null, saved: null});
-  form.bg.checked = !!p.bg; form.tone.checked = !!p.tone; form.weekly.checked = !!p.weekly;
+  form.bg.checked = !!p.bg; form.tone.checked = !!p.tone; form.weekly.checked = !!p.weekly; form.remember.checked = !!p.remember;
 };
 ME.send = async function(eve, f){ eve.preventDefault();
-  f = Object.fromEntries(new FormData(form)); f.bg = form.bg.checked; f.tone = form.tone.checked; f.weekly = form.weekly.checked;
+  f = Object.fromEntries(new FormData(form)); f.bg = form.bg.checked; f.tone = form.tone.checked; f.weekly = form.weekly.checked; f.remember = form.remember.checked;
   form.act.disabled = true; kit.bind(document, {err: null, saved: null});
-  try{ ME.fill(FIT.user(await API.ask('/users/me', FIT.me(f), 'PATCH'))); kit.bind(document, {saved: {}}) }
+  try{ ME.fill(FIT.user(await API.ask('/users/me', FIT.me(f), 'PATCH'))); kit.bind(document, {saved: {}}); kit.say(true, 'prefs') }
   catch(err){ kit.bind(document, {err: err.message}) }
   form.act.disabled = false;
 };
