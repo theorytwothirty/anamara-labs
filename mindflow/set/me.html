@@ -13,12 +13,12 @@
   </div>
   <p class="cap split">Session preferences</p>
   <label>Voice
-    <select name="voice">
+    <span class="line"><select name="voice" class="grow">
       <option value="calm_female">Calm female</option>
       <option value="calm_male">Calm male</option>
       <option value="warm_female">Warm female</option>
       <option value="warm_male">Warm male</option>
-    </select>
+    </select><button type="button" id="hear" class="ghost">Listen</button></span>
   </label>
   <label><span class="line"><span class="grow">Session length</span><b name="mins" class="tag">20</b> min</span><input name="len" type="range" min="5" max="45" step="5" value="20"></label>
   <label class="line tick"><input name="bg" type="checkbox"> <span class="grow">Background sounds</span></label>
@@ -38,6 +38,7 @@
 <script src="../env.js"></script>
 <script src="../api.js"></script>
 <script src="../fit.js"></script>
+<script src="../hear.js"></script>
 <script>
 // body: a user {name, mail, plan, ok, pref: {voice, len, bg, weekly}}.
 kit.createServer(function(req, res){ ME.fill(req.body || {}); res.send(document) });
@@ -56,4 +57,5 @@ ME.send = async function(eve, f){ eve.preventDefault();
 };
 form.ear('submit', ME.send);
 form.len.ear('input', function(){ kit.bind(document, {mins: form.len.value}) });
+hear.ear('click', function(){ HEAR.play(form.voice.value, hear).catch(function(err){ kit.bind(document, {err: err.message}) }) });
 </script>

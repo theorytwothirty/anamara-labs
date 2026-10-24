@@ -66,7 +66,7 @@ input, textarea, select {
 }
 input:focus, textarea:focus, select:focus { border-color: var(--lilac); box-shadow: 0 0 0 4px var(--lilact); outline: none; }
 input[type=range] { padding: 0; min-height: 32px; accent-color: var(--rose); border: 0; background: transparent; box-shadow: none; }
-input[type=checkbox] { width: 22px; min-height: 22px; accent-color: var(--rose); }
+input[type=checkbox]:not([hidden]) { width: 22px; min-height: 22px; flex: none; accent-color: var(--rose); } /* beats Kit's input:not(...):not(...) width */
 textarea { min-height: 8em; resize: vertical; line-height: 1.5; }
 label { display: grid; gap: var(--s2); color: var(--mute); font-size: var(--t5); font-weight: 600; }
 label > * { font-size: var(--t4); font-weight: 400; color: var(--ink); }
