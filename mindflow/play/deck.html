@@ -17,7 +17,8 @@
       <button id="go" class="round big" aria-label="Play"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path class="tri" d="M8 5.5l11 6.5-11 6.5z"/><path class="two" d="M8 5v14M16 5v14"/></svg></button>
       <button id="next" class="round ghost" aria-label="Forward 15 seconds">+15</button>
     </div>
-    <button id="mute" class="ghost hug tiny" aria-pressed="false">Mute</button>
+    <div class="line tools"><button id="mute" class="ghost hug tiny" aria-pressed="false">Mute</button>
+      <button id="calm" class="ghost hug tiny" aria-pressed="false">Background: off</button></div>
   </div>
   <button id="done">I'm finished</button>
 </section>
@@ -29,17 +30,18 @@
 #go .icon { width: 30px; height: 30px; fill: currentColor; stroke-width: 2.4; }
 #go .two, #go.run .tri { display: none; }
 #go.run .two { display: inline; }
-#mute { justify-self: center; }
+.tools { justify-content: center; }
 [name=now] { text-align: left; }
 </style>
 
 <script src="../gun/kit/dom.js"></script>
 <script src="../pen.js"></script>
+<script src="../calm.js"></script>
 <script>
-// body: {src: audio URL or '', title}. Says 'done' when the audio ends or "I'm finished" is tapped.
+// body: {src: audio URL or '', title, bg: soft background on}. Says 'done' when the audio ends or "I'm finished" is tapped.
 kit.createServer(function(req, res){
   var b = req.body || {};
-  sound.pause(); b.src ? sound.src = b.src : sound.removeAttribute('src');
+  sound.pause(); CALM.on = !!b.bg; DECK.calm(); b.src ? sound.src = b.src : sound.removeAttribute('src');
   ctrl.hidden = !b.src;
   res.send(kit.bind(document, {title: b.title, none: b.src ? null : {}, now: '0:00', end: '0:00'}));
 });
@@ -50,12 +52,14 @@ DECK.time = function(){
   if(sound.duration){ seek.value = Math.round(1000 * sound.currentTime / sound.duration) }
 };
 DECK.skip = function(s){ sound.currentTime = Math.min(Math.max(sound.currentTime + s, 0), sound.duration || 0) };
-DECK.run = function(){ go.setAttribute('aria-label', sound.paused ? 'Play' : 'Pause'); [go, orb].forEach(function(el){ el.tag('run', sound.paused ? -1 : 1) }) };
+DECK.run = function(){ go.setAttribute('aria-label', sound.paused ? 'Play' : 'Pause'); [go, orb].forEach(function(el){ el.tag('run', sound.paused ? -1 : 1) }); DECK.calm() };
+DECK.calm = function(){ calm.textContent = 'Background: ' + (CALM.on ? 'on' : 'off'); calm.setAttribute('aria-pressed', CALM.on); CALM.follow(!sound.paused, sound.muted) };
 
-go.ear('click', function(){ sound.paused ? sound.play().catch(Boolean) : sound.pause() });
+go.ear('click', function(){ CALM.wake(); sound.paused ? sound.play().catch(Boolean) : sound.pause() });
 back.ear('click', function(){ DECK.skip(-15) });
 next.ear('click', function(){ DECK.skip(15) });
-mute.ear('click', function(){ sound.muted = !sound.muted; mute.textContent = sound.muted ? 'Unmute' : 'Mute'; mute.setAttribute('aria-pressed', sound.muted) });
+mute.ear('click', function(){ sound.muted = !sound.muted; mute.textContent = sound.muted ? 'Unmute' : 'Mute'; mute.setAttribute('aria-pressed', sound.muted); DECK.calm() });
+calm.ear('click', function(){ CALM.on = !CALM.on; CALM.wake(); DECK.calm() });
 seek.ear('input', function(){ if(sound.duration){ sound.currentTime = seek.value / 1000 * sound.duration } });
 sound.ear('timeupdate loadedmetadata', DECK.time);
 sound.ear('play pause', DECK.run);
