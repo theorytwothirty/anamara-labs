@@ -1,0 +1,51 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../../gun/kit/web.css"><link rel="stylesheet" href="../../app.css">
+<script src="../../gun/kit/web.js"></script>
+
+<div class="flow">
+  <section class="card list">
+    <p class="cap">A different way to see this</p>
+    <p name="want" class="tag hug" hidden></p>
+    <p name="view" class="say"></p>
+    <details class="fold"><summary>What this may be protecting</summary><p name="aim" class="soft"></p></details>
+    <details class="fold"><summary>Another perspective</summary><p name="turn" class="soft"></p></details>
+  </section>
+  <iframe id="rehearse" src="rehearse.html" title="Rehearse a different response"></iframe>
+  <iframe id="act" src="act.html" title="One thing you'll do differently"></iframe>
+  <iframe id="drill" src="drill.html" title="Somatic practice"></iframe>
+  <iframe id="chat" src="chat.html" title="Explore this further"></iframe>
+  <p name="fail" class="bad" hidden></p>
+  <div class="list">
+    <button id="make" class="big">Create a guided audio for this</button>
+    <button id="over" class="ghost">Start over with something new</button>
+  </div>
+</div>
+
+<script src="../../gun/kit/dom.js"></script>
+<script src="../../env.js"></script>
+<script src="../../api.js"></script>
+<script src="../../fit.js"></script>
+<script src="../../nav.js"></script>
+<script src="../../make.js"></script>
+<script>
+// body: a reframe conversation (FIT.frame). Shows the new perspective and hands the conversation to each practice part.
+// Says 'over' when the person wants to start again with something new.
+kit.createServer(function(req, res){ VIEW.conv = req.body || {};
+  var c = VIEW.conv;
+  [rehearse, act, drill, chat].forEach(function(one){ kit.fetch(one, c).catch(Boolean) });
+  res.send(kit.bind(document, {want: c.want ? 'Showing up: ' + c.want : null, view: c.view, aim: c.aim, turn: c.turn, fail: null}));
+});
+
+var VIEW = {};
+VIEW.make = async function(){
+  kit.bind(document, {fail: null}); make.disabled = true;
+  try{ await MAKE.sess({issue: VIEW.conv.issue, mood: 5}, MAKE.root + 'new.html') }
+  catch(err){ kit.bind(document, {fail: err.message}) }
+  make.disabled = false;
+};
+make.ear('click', VIEW.make);
+over.ear('click', function(){ kit.say({}, 'over') });
+// The rehearsal, chat and practice parts send back the updated conversation after each change; the step part follows it.
+kit.ear('frame', function(eve){ eve.preventDefault(); VIEW.conv = eve.detail; kit.fetch(act, VIEW.conv).catch(Boolean) });
+</script>
