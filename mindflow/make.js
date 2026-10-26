@@ -9,7 +9,7 @@ MAKE.sess = async function(ask, back, a, s){
   try{
     a = await API.ask('/assessments', FIT.ask(ask));
     s = await API.ask('/sessions/generate', {assessment_id: a.id});
-  }catch(err){ NAV.go(back); throw err }
+  }catch(err){ err.support || NAV.go(back); throw err }
   NAV.go(MAKE.root + 'play.html?id=' + encodeURIComponent(s.id));
 };
 }());

@@ -1,0 +1,41 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Support · MindFlow</title>
+<link rel="stylesheet" href="gun/kit/web.css"><link rel="stylesheet" href="app.css">
+<script src="gun/kit/web.js"></script>
+
+<div class="pad flow">
+  <header class="list">
+    <p class="cap">You're not alone</p>
+    <h1>It sounds like things are really hard right now.</h1>
+    <p class="lead">Thank you for putting it into words. This is a moment to talk with a real person, not an app, and support is
+      available right now, free and confidential.</p>
+  </header>
+  <section class="card list now">
+    <b>If you might act on thoughts of harming yourself, or you're in danger</b>
+    <p>Call your local emergency number now: <b>911</b> in the US and Canada, <b>999</b> in the UK, <b>112</b> across Europe.</p>
+  </section>
+  <section class="card list">
+    <b>Talk to someone today</b>
+    <ul class="list lines">
+      <li><b>US and Canada:</b> call or text <a href="tel:988" target="_blank" rel="noopener">988</a>, any time.</li>
+      <li><b>UK and Ireland:</b> call Samaritans on <a href="tel:116123" target="_blank" rel="noopener">116 123</a>, free, any time.</li>
+      <li><b>Anywhere else:</b> <a href="https://findahelpline.com" target="_blank" rel="noopener">findahelpline.com</a> lists free, confidential helplines in your country.</li>
+    </ul>
+    <p class="soft">If you can, let someone you trust know how you're feeling, and stay near them for now.</p>
+  </section>
+  <p class="soft">MindFlow is for personal growth and isn't a crisis service. We paused your practice; nothing you wrote was saved.
+    Whenever you feel ready, MindFlow will be here.</p>
+  <a class="btn hug" href="dash.html">Back to MindFlow</a>
+</div>
+
+<style>
+.now { border-color: var(--rose); background: var(--roset); }
+.lines li { display: block; padding-left: var(--s4); border-left: 3px solid var(--lilact); }
+</style>
+
+<script src="nav.js"></script>
+<script>
+// No body. Shown when what someone wrote suggests they may be in danger (the backend answers 409 support_needed).
+kit.createServer(function(req, res){ res.send(document) });
+</script>

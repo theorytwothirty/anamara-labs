@@ -55,7 +55,8 @@ FIT.team = function(t, u, p, r){ u = t.people || {}; p = t.practice || {}; r = t
   return {days: t.days, joined: u.signed_up, active: u.active, twice: u.practiced_twice_or_more,
     frames: p.reframes, began: p.guided_sessions_started, ended: p.guided_sessions_finished, rehearsed: p.rehearsals_finished,
     passed: p.rehearsals_skipped, rated: p.average_rehearsal_rating, saved: r.steps_saved, tried: r.steps_tried, untried: r.steps_not_tried,
-    noticed: r.reflections, triedrate: r.tried_rate, noticedrate: r.reflection_rate};
+    noticed: r.reflections, triedrate: r.tried_rate, noticedrate: r.reflection_rate,
+    support: (t.safety || {}).support_shown, helped: (t.safety || {}).people_shown_support};
 };
 
 FIT.sum = function(s){

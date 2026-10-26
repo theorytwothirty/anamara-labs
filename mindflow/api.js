@@ -10,7 +10,7 @@ API.drop = function(){ localStorage.removeItem(API.key.tok); localStorage.remove
 
 // path: '/goals'. body: sent as JSON (omit for GET). how: HTTP method. raw: return a Blob.
 API.ask = async function(path, body, how, raw, again){
-  var old = API.tok(), opt = {method: how || (undefined === body ? 'GET' : 'POST'), headers: {}}, res;
+  var old = API.tok(), opt = {method: how || (undefined === body ? 'GET' : 'POST'), headers: {}}, res, why;
   if(old){ opt.headers.Authorization = 'Bearer ' + old }
   if(undefined !== body){ opt.headers['Content-Type'] = 'application/json'; opt.body = JSON.stringify(body) }
   try{ res = await fetch(ENV.api + path, opt) }catch(err){ throw API.fail(0, 'Cannot reach MindFlow. Check your connection and try again.') }
@@ -19,7 +19,11 @@ API.ask = async function(path, body, how, raw, again){
     API.drop(); kit.say(new URL('sign.html', API.root).href, 'go');
     throw API.fail(401, 'Session expired. Please sign in again.');
   }
-  if(!res.ok){ throw API.fail(res.status, await API.why(res)) }
+  if(!res.ok){ why = await API.why(res);
+    // What was written suggests the person may be in danger: no practice, show support options instead.
+    if(409 === res.status && 'support_needed' === why){ kit.say(new URL('support.html', API.root).href, 'go'); throw API.fail(409, "Let's pause here. Support options are open.", 1) }
+    throw API.fail(res.status, why);
+  }
   if(204 === res.status){ return }
   return raw ? res.blob() : res.json();
 };
@@ -28,8 +32,9 @@ API.why = async function(res, d){
   try{ d = (await res.json()).detail }catch(err){ return '' }
   return Array.isArray(d) ? d.map(function(e){ return e.msg }).join('. ') : d;
 };
-API.fail = function(code, why){
-  var err = new Error(why || 'Something went wrong. Please try again.'); err.status = code; return err;
+// support: the app has gone to the support page, so callers shouldn't navigate anywhere else.
+API.fail = function(code, why, support){
+  var err = new Error(why || 'Something went wrong. Please try again.'); err.status = code; err.support = !!support; return err;
 };
 
 // Every frame shares one token store, so refresh under a lock and skip it if another frame already did.
