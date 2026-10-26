@@ -1,0 +1,67 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Feedback · MindFlow</title>
+<link rel="stylesheet" href="gun/kit/web.css"><link rel="stylesheet" href="app.css">
+<script src="gun/kit/web.js"></script>
+
+<div class="pad flow">
+  <header class="list">
+    <p class="cap">Feedback</p>
+    <h1>How is MindFlow working for you?</h1>
+    <p class="lead">Five quick questions. Answer as many as you like.</p>
+  </header>
+  <form id="form" class="card list ask">
+    <b>1 · Did anything shift for you in a real situation, even slightly?</b>
+    <div id="shifted" class="line" role="group"><button type="button" class="chip" value="yes">Yes</button><button type="button" class="chip" value="a_little">A little</button><button type="button" class="chip" value="not_yet">Not yet</button></div>
+    <label>What shifted? (optional) <textarea name="what" maxlength="1000"></textarea></label>
+    <b>2 · Which part was most useful?</b>
+    <div id="useful" class="line" role="group"><button type="button" class="chip" value="perspective">New perspective</button><button type="button" class="chip" value="rehearsal">Rehearsal</button><button type="button" class="chip" value="audio">Guided audio</button><button type="button" class="chip" value="step">Real-world step</button><button type="button" class="chip" value="not_sure">Not sure</button></div>
+    <label><b>3 · Was anything confusing, slow, or off-putting?</b> <textarea name="confusing" maxlength="1000"></textarea></label>
+    <label><b>4 · How did the voice and background sound feel?</b> <textarea name="sound" maxlength="500"></textarea></label>
+    <b>5 · Would you keep using it?</b>
+    <div id="keep" class="line" role="group"><button type="button" class="chip" value="yes">Yes</button><button type="button" class="chip" value="maybe">Maybe</button><button type="button" class="chip" value="no">No</button></div>
+    <label>Why? (optional) <textarea name="why" maxlength="1000"></textarea></label>
+    <p class="soft tiny">Your answers go to the MindFlow team without your name or email.</p>
+    <p name="err" class="bad" hidden></p>
+    <button class="big" name="act">Send feedback</button>
+  </form>
+  <div id="thanks" class="card list calm" hidden>
+    <h2>Thank you!</h2>
+    <p class="soft">This genuinely helps shape MindFlow.</p>
+    <a class="btn hug" href="dash.html">Back to Today</a>
+  </div>
+</div>
+
+<style>
+.ask b { color: var(--ink); font-size: var(--t4); font-weight: 700; }
+.ask textarea { min-height: 4.5em; }
+</style>
+
+<script src="gun/kit/dom.js"></script>
+<script src="env.js"></script>
+<script src="api.js"></script>
+<script src="nav.js"></script>
+<script>
+// No body needed: every show starts a fresh form.
+kit.createServer(function(req, res){ TELL.reset(); res.send(kit.bind(document, {err: null})) });
+
+var TELL = {groups: [shifted, useful, keep]};
+TELL.reset = function(){ form.reset(); form.hidden = false; thanks.hidden = true; form.all('.chip').forEach(function(c){ c.setAttribute('aria-pressed', false) }) };
+TELL.pick = function(group, on){ on = group.querySelector('[aria-pressed=true]'); return on ? on.value : null };
+// One answer per question; tapping the chosen one again clears it.
+TELL.tap = function(chip, was){ was = 'true' === chip.getAttribute('aria-pressed');
+  chip.parentElement.all('.chip').forEach(function(c){ c.setAttribute('aria-pressed', false) });
+  chip.setAttribute('aria-pressed', !was);
+};
+TELL.send = async function(eve){ eve.preventDefault();
+  form.act.disabled = true; kit.bind(document, {err: null});
+  try{
+    await API.ask('/feedback', {shifted: TELL.pick(shifted), what_shifted: form.what.value, useful: TELL.pick(useful), confusing: form.confusing.value,
+      sound: form.sound.value, keep: TELL.pick(keep), why: form.why.value});
+    form.hidden = true; thanks.hidden = false;
+  }catch(err){ kit.bind(document, {err: err.message}) }
+  form.act.disabled = false;
+};
+form.all('.chip').ear('click', function(){ TELL.tap(this) });
+form.ear('submit', TELL.send);
+</script>

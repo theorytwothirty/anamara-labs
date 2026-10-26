@@ -1,0 +1,51 @@
+<!doctype html>
+<meta charset="utf-8">
+<link rel="stylesheet" href="../gun/kit/web.css"><link rel="stylesheet" href="../app.css">
+<script src="../gun/kit/web.js"></script>
+
+<section class="card list">
+  <p class="cap">What testers said</p>
+  <p class="soft tiny">From "Share feedback" in the app. Never with names or emails.</p>
+  <p class="line"><span class="grow">Answers</span><b name="count">–</b></p>
+  <p class="line"><span class="grow">Something shifted: yes · a little · not yet</span><b name="shifted">–</b></p>
+  <p class="line"><span class="grow">Would keep using: yes · maybe · no</span><b name="keep">–</b></p>
+  <p class="line"><span class="grow">Most useful</span><b name="useful">–</b></p>
+  <p name="none" class="soft" hidden>No answers in this period yet.</p>
+  <ul id="box" class="list"></ul>
+  <p name="err" class="bad" hidden></p>
+</section>
+<template id="row">
+  <li class="list said">
+    <span name="when" class="tiny soft"></span>
+    <span name="what"></span><span name="confusing"></span><span name="sound"></span><span name="why"></span>
+  </li>
+</template>
+
+<style>
+.said { gap: var(--s1); padding-left: var(--s4); border-left: 3px solid var(--lilact); font-size: var(--t5); }
+</style>
+
+<script src="../gun/kit/dom.js"></script>
+<script src="../env.js"></script>
+<script src="../api.js"></script>
+<script src="../pen.js"></script>
+<script src="../row.js"></script>
+<script>
+// body: {days}. Tallies and the written answers, newest first.
+kit.createServer(async function(req, res, f){
+  try{ f = await API.ask('/insights/team/feedback?days=' + (+(req.body || {}).days || 30)) }
+  catch(err){ return res.send(kit.bind(document, {err: err.message})) }
+  ROW.fill(box, row, f.answers.filter(SAID.wrote).map(SAID.item));
+  res.send(kit.bind(document, {err: null, count: f.count, none: f.count ? null : {},
+    shifted: SAID.three(f.shifted, ['yes', 'a_little', 'not_yet']), keep: SAID.three(f.keep, ['yes', 'maybe', 'no']), useful: SAID.top(f.useful)}));
+});
+
+var SAID = {names: {perspective: 'New perspective', rehearsal: 'Rehearsal', audio: 'Guided audio', step: 'Real-world step', not_sure: 'Not sure'}};
+SAID.three = function(t, keys){ return keys.map(function(k){ return t[k] || 0 }).join(' · ') };
+SAID.top = function(t, best){ best = Object.keys(t).sort(function(a, b){ return t[b] - t[a] })[0]; return best ? SAID.names[best] + ' (' + t[best] + ')' : '–' };
+SAID.wrote = function(a){ return a.what_shifted || a.confusing || a.sound || a.why };
+SAID.item = function(a){
+  return {when: PEN.ago(a.at), what: a.what_shifted ? 'Shifted: ' + a.what_shifted : null, confusing: a.confusing ? 'Confusing: ' + a.confusing : null,
+    sound: a.sound ? 'Sound: ' + a.sound : null, why: a.why ? 'Keep using (' + (a.keep || '?') + '): ' + a.why : null};
+};
+</script>

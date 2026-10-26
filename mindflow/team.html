@@ -31,6 +31,7 @@
     <p class="line"><span class="grow">Tried when they came back</span><b name="triedrate">–</b></p>
     <p class="line"><span class="grow">Reflected when they came back</span><b name="noticedrate">–</b></p>
   </section>
+  <iframe id="said" src="team/said.html" title="What testers said"></iframe>
   <iframe id="mail" src="team/health.html" title="Health and email"></iframe>
 </div>
 
@@ -47,6 +48,7 @@ var TEAM = {};
 TEAM.pct = function(n){ return null == n ? '–' : Math.round(n * 100) + '%' };
 TEAM.load = async function(days, t){
   span.all('button').forEach(function(b){ b.setAttribute('aria-pressed', +b.value === days) });
+  kit.fetch(said, {days: days}).catch(Boolean);
   try{ t = FIT.team(await API.ask('/insights/team?days=' + days)) }catch(err){ return kit.bind(document, {err: err.message}) }
   kit.bind(document, Object.assign(t, {err: null, rated: null == t.rated ? '–' : t.rated + ' / 5', triedrate: TEAM.pct(t.triedrate), noticedrate: TEAM.pct(t.noticedrate)}));
 };
