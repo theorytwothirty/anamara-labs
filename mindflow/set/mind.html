@@ -5,17 +5,26 @@
 
 <div class="card list">
   <p class="cap">What MindFlow remembers</p>
-  <p class="soft">So each session builds on the last, MindFlow shares a short note from your history with the AI: your goals,
-    recent situations, how your real-world steps went, and how you rated sessions. This is that note, exactly as sent.</p>
+  <p class="soft">So each session builds on the last, MindFlow shares this with the AI, exactly as shown.</p>
   <p name="off" class="soft" hidden>Memory is off, so each session starts fresh. Turn it on under Profile above.</p>
   <p name="none" class="soft" hidden>Nothing yet. After a practice or two, what you share will appear here.</p>
-  <ul id="box" class="list"></ul>
+  <div id="sum" class="list" hidden>
+    <b>Summary so far</b>
+    <p class="soft tiny">Updated after your reflections and finished sessions.</p>
+    <ul id="tops" class="list notes"></ul>
+    <button id="wipe" class="ghost hug tiny">Clear summary</button>
+  </div>
+  <div id="last" class="list" hidden>
+    <b>Recent details</b>
+    <p class="soft tiny">From your goals, recent situations, how your steps went, and how you rated sessions.</p>
+    <ul id="box" class="list notes"></ul>
+  </div>
   <p name="err" class="bad" hidden></p>
 </div>
 <template id="row"><li><span name="text"></span></li></template>
 
 <style>
-#box li { padding-left: var(--s4); border-left: 3px solid var(--lilact); font-size: var(--t5); }
+.notes li { padding-left: var(--s4); border-left: 3px solid var(--lilact); font-size: var(--t5); }
 </style>
 
 <script src="../gun/kit/dom.js"></script>
@@ -23,10 +32,22 @@
 <script src="../api.js"></script>
 <script src="../row.js"></script>
 <script>
-// No body needed: every show reloads the note from /users/me/memory.
-kit.createServer(async function(req, res, m){
-  try{ m = await API.ask('/users/me/memory') }catch(err){ return res.send(kit.bind(document, {err: err.message, off: null, none: null})) }
-  ROW.fill(box, row, m.on && m.note ? m.note.split('\n').map(function(t){ return {text: t.replace(/^- /, '')} }) : []);
-  res.send(kit.bind(document, {err: null, off: m.on ? null : {}, none: m.on && !m.note ? {} : null}));
-});
+// No body needed: every show reloads {on, summary, recent} from /users/me/memory.
+kit.createServer(async function(req, res){ res.send(await MIND.load()) });
+
+var MIND = {};
+MIND.rows = function(lines){ return lines.map(function(t){ return {text: t.replace(/^- /, '')} }) };
+MIND.load = async function(m){
+  try{ m = await API.ask('/users/me/memory') }catch(err){ return kit.bind(document, {err: err.message, off: null, none: null}) }
+  ROW.fill(tops, row, MIND.rows(m.summary ? m.summary.split('\n') : []));
+  ROW.fill(box, row, MIND.rows(m.recent || []));
+  sum.hidden = !m.summary; last.hidden = !(m.recent || []).length;
+  return kit.bind(document, {err: null, off: m.on ? null : {}, none: m.on && !m.summary && !(m.recent || []).length ? {} : null});
+};
+MIND.wipe = async function(){
+  wipe.disabled = true;
+  try{ await API.ask('/users/me/memory', undefined, 'DELETE'); await MIND.load() }catch(err){ kit.bind(document, {err: err.message}) }
+  wipe.disabled = false;
+};
+wipe.ear('click', MIND.wipe);
 </script>
